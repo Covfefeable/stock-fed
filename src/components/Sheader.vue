@@ -10,8 +10,8 @@
   >
     <h3>量化交易辅助决策平台</h3>
     <el-menu-item index="Home">首页</el-menu-item>
-    <el-menu-item index="foresee" disabled>预测</el-menu-item>
-    <el-menu-item index="foresee" disabled>策略</el-menu-item>
+    <el-menu-item index="Model" disabled>模型</el-menu-item>
+    <el-menu-item index="Foresee" disabled>策略</el-menu-item>
     <el-menu-item index="About">关于</el-menu-item>
     <!-- <el-sub-menu index="2">
       <template #title>Workspace</template>

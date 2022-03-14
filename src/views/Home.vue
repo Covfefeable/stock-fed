@@ -35,13 +35,19 @@
         </el-form-item>
         <el-form-item label="k线类型">
           <el-radio-group v-model="stockData.frequency">
-            <el-radio-button label="5分"></el-radio-button>
-            <el-radio-button label="15分"></el-radio-button>
-            <el-radio-button label="30分"></el-radio-button>
-            <el-radio-button label="60分"></el-radio-button>
-            <el-radio-button label="日k"></el-radio-button>
-            <el-radio-button label="周k"></el-radio-button>
-            <el-radio-button label="月k"></el-radio-button>
+            <el-radio-button
+              v-for="(item, index) in [
+                '5分',
+                '15分',
+                '30分',
+                '60分',
+                '日k',
+                '周k',
+                '月k',
+              ]"
+              :key="index"
+              :label="item"
+            ></el-radio-button>
           </el-radio-group>
         </el-form-item>
 
@@ -58,7 +64,7 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span>{{ stockData.stock_code }}</span>
+          <span>k线与指标</span>
         </div>
       </template>
       <el-skeleton :rows="15" animated v-show="loading" />
@@ -94,8 +100,8 @@ export default {
   name: "Home",
   components: {
     Echart,
-    BasicInfo
-},
+    BasicInfo,
+  },
   setup() {
     let option = reactive({
       option: {},
@@ -121,13 +127,13 @@ export default {
 
     const stockData = reactive({
       input: "",
-      stock_code: "sh.600000",
+      stock_code: "sh.000001",
       date: ["2022-01-01", "2022-03-10"],
       frequency: "日k",
       options: [
         {
-          code: "sh.600000",
-          code_name: "浦发银行",
+          code: "sh.000001",
+          code_name: "上证综合指数",
         },
       ],
     });
@@ -165,7 +171,7 @@ export default {
       });
     };
     const fetchStock = (e) => {
-      if(!e) return
+      if (!e) return;
       axios
         .get(api.search, {
           params: {

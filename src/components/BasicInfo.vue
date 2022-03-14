@@ -1,5 +1,9 @@
 <template>
   <el-descriptions :title="stockBasicInfo.name">
+    <template #extra>
+      <el-button type="primary" disabled>加自选</el-button>
+      <el-button type="primary" disabled>训练</el-button>
+    </template>
     <el-descriptions-item label="股票代码">{{
       stockBasicInfo.code
     }}</el-descriptions-item>
@@ -10,7 +14,7 @@
       stockBasicInfo.outDate || "暂无"
     }}</el-descriptions-item>
     <el-descriptions-item label="证券类型">
-      <el-tag size="medium">{{ stockType[stockBasicInfo.type] }}</el-tag>
+      <el-tag size="default">{{ stockType[stockBasicInfo.type] }}</el-tag>
     </el-descriptions-item>
     <el-descriptions-item label="状态">{{
       stockStatus[stockBasicInfo.status]
