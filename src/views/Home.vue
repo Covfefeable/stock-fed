@@ -2,14 +2,13 @@
   <div class="home">
     <el-card class="box-card">
       <el-form :inline="true" :model="stockData">
-        <el-form-item label="股票代码">
+        <el-form-item label="股票名称">
           <el-select
             v-model="stockData.stock_code"
             filterable
             remote
             placeholder="请输入代码或股票名称"
             :remote-method="fetchStock"
-            @change="handleStockChange"
           >
             <el-option
               v-for="item in stockData.options"
@@ -19,6 +18,7 @@
             >
             </el-option>
           </el-select>
+          <Favour @update-favour="updateFavour" @select-favour="selectFavour" />
         </el-form-item>
         <el-form-item label="日期选择">
           <el-date-picker
@@ -58,7 +58,7 @@
     </el-card>
 
     <el-card class="box-card">
-      <BasicInfo :code="stockData.stock_code"></BasicInfo>
+      <BasicInfo :code="stockData.stock_code" ref="basic" />
     </el-card>
 
     <el-card class="box-card">
@@ -92,6 +92,7 @@ import axios from "axios";
 import { ElMessage } from "element-plus";
 import Echart from "@/components/Echart";
 import BasicInfo from "@/components/BasicInfo.vue";
+import Favour from "@/components/Favour.vue"
 import api from "@/utils/api.js";
 import config from "@/utils/config.js";
 import chart from "@/utils/chart.js";
@@ -101,6 +102,7 @@ export default {
   components: {
     Echart,
     BasicInfo,
+    Favour
   },
   setup() {
     let option = reactive({
@@ -141,6 +143,18 @@ export default {
     onMounted(() => {
       onSubmit();
     });
+    const basic = ref()
+    const updateFavour = () => {
+      basic.value.isAdded()
+    }
+
+    const selectFavour = (data) => {
+      stockData.options = [{
+        code: data.code,
+        code_name: data.name
+      }]
+      stockData.stock_code = data.code
+    }
 
     const addInstanse = (e) => {
       echartsTotal.push(e);
@@ -186,7 +200,10 @@ export default {
             });
             return;
           }
-          stockData.options = res.data;
+          stockData.options = res.data.filter((item) => {
+            // 排除场外的
+            return item.code.indexOf("of.") === -1;
+          });
         })
         .catch((err) => {
           ElMessage({
@@ -194,9 +211,6 @@ export default {
             type: "error",
           });
         });
-    };
-    const handleStockChange = (e) => {
-      console.log(e);
     };
     const onSubmit = () => {
       loading.value = true;
@@ -306,6 +320,7 @@ export default {
       });
     };
     return {
+      basic,
       loading,
       option,
       option_macd,
@@ -315,7 +330,8 @@ export default {
       onSubmit,
       addInstanse,
       fetchStock,
-      handleStockChange,
+      updateFavour,
+      selectFavour
     };
   },
 };

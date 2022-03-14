@@ -1,7 +1,9 @@
 <template>
   <el-descriptions :title="stockBasicInfo.name">
     <template #extra>
-      <el-button type="primary" disabled>加自选</el-button>
+      <el-button :type="added ? 'danger' : 'primary'" @click="favourate">{{
+        added ? "删自选" : "加自选"
+      }}</el-button>
       <el-button type="primary" disabled>训练</el-button>
     </template>
     <el-descriptions-item label="股票代码">{{
@@ -22,7 +24,7 @@
   </el-descriptions>
 </template>
 <script>
-import { onMounted, reactive, watch } from "vue";
+import { ref, onMounted, reactive, watch } from "vue";
 import axios from "axios";
 import api from "@/utils/api.js";
 export default {
@@ -32,13 +34,14 @@ export default {
   setup(props) {
     watch(
       () => props.code,
-      (newVal) => {
+      () => {
         getStockInfo();
       }
     );
     onMounted(() => {
       getStockInfo();
     });
+
     const stockType = {
       1: "股票",
       2: "指数",
@@ -48,7 +51,7 @@ export default {
     };
     const stockStatus = {
       1: "上市",
-      2: "退市",
+      0: "退市",
     };
     const stockBasicInfo = reactive({
       name: "--",
@@ -58,6 +61,45 @@ export default {
       type: "--",
       status: "--",
     });
+    const added = ref(false)
+    const isAdded = () => {
+      if (!localStorage.getItem("my_stock")) {
+        added.value = false
+        return
+      }
+      let my_stock = JSON.parse(localStorage.getItem("my_stock"));
+      let exist = false;
+      my_stock.map((item) => {
+        if (item.code === stockBasicInfo.code) {
+          exist = true;
+        }
+      });
+     added.value = exist;
+    };
+
+    const favourate = () => {
+      if (stockBasicInfo.code === "--") return;
+      let my_stock = [];
+      if (localStorage.getItem("my_stock")) {
+        my_stock = JSON.parse(localStorage.getItem("my_stock"));
+      }
+      if (added.value) {
+        my_stock.map((item, index) => {
+          if (item.code === stockBasicInfo.code) {
+            my_stock.splice(index, 1);
+          }
+        });
+      } else {
+        my_stock.push({
+          name: stockBasicInfo.name,
+          code: stockBasicInfo.code,
+          type: stockBasicInfo.type,
+          status: stockBasicInfo.status,
+        });
+      }
+      localStorage.setItem("my_stock", JSON.stringify(my_stock));
+      isAdded()
+    };
 
     const getStockInfo = () => {
       if (!props.code) return;
@@ -81,6 +123,7 @@ export default {
           stockBasicInfo.outDate = res.data[0].outDate;
           stockBasicInfo.type = res.data[0].type;
           stockBasicInfo.status = res.data[0].status;
+          isAdded()
         })
         .catch((err) => {
           ElMessage({
@@ -89,7 +132,7 @@ export default {
           });
         });
     };
-    return { stockBasicInfo, stockType, stockStatus };
+    return { stockBasicInfo, stockType, stockStatus, added, favourate, isAdded };
   },
 };
 </script>
