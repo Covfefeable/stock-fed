@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <el-card class="filter">
+    <el-card class="box-card">
       <el-form :inline="true" :model="stockData">
         <el-form-item label="股票代码">
           <el-select
@@ -9,6 +9,7 @@
             remote
             placeholder="请输入代码或股票名称"
             :remote-method="fetchStock"
+            @change="handleStockChange"
           >
             <el-option
               v-for="item in stockData.options"
@@ -49,6 +50,11 @@
         </el-form-item>
       </el-form>
     </el-card>
+
+    <el-card class="box-card">
+      <BasicInfo :code="stockData.stock_code"></BasicInfo>
+    </el-card>
+
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
@@ -79,14 +85,17 @@ import * as echarts from "echarts";
 import axios from "axios";
 import { ElMessage } from "element-plus";
 import Echart from "@/components/Echart";
+import BasicInfo from "@/components/BasicInfo.vue";
 import api from "@/utils/api.js";
 import config from "@/utils/config.js";
 import chart from "@/utils/chart.js";
+
 export default {
   name: "Home",
   components: {
     Echart,
-  },
+    BasicInfo
+},
   setup() {
     let option = reactive({
       option: {},
@@ -115,10 +124,12 @@ export default {
       stock_code: "sh.600000",
       date: ["2022-01-01", "2022-03-10"],
       frequency: "日k",
-      options: [{
-        code: 'sh.600000',
-        code_name: '浦发银行'
-      }]
+      options: [
+        {
+          code: "sh.600000",
+          code_name: "浦发银行",
+        },
+      ],
     });
 
     onMounted(() => {
@@ -154,6 +165,7 @@ export default {
       });
     };
     const fetchStock = (e) => {
+      if(!e) return
       axios
         .get(api.search, {
           params: {
@@ -168,7 +180,7 @@ export default {
             });
             return;
           }
-          stockData.options = res.data
+          stockData.options = res.data;
         })
         .catch((err) => {
           ElMessage({
@@ -177,7 +189,7 @@ export default {
           });
         });
     };
-    const selectStock = (e) => {
+    const handleStockChange = (e) => {
       console.log(e);
     };
     const onSubmit = () => {
@@ -297,7 +309,7 @@ export default {
       onSubmit,
       addInstanse,
       fetchStock,
-      selectStock,
+      handleStockChange,
     };
   },
 };
@@ -307,10 +319,6 @@ export default {
 .home {
   min-height: 100vh;
   padding: 10px;
-
-  .filter {
-    margin: 10px 20px;
-  }
 
   .box-card {
     margin: 10px 20px;
