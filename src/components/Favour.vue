@@ -9,7 +9,7 @@
     <template #default>
       <el-table
         v-if="stock.my_stock.length"
-        :data="stock.my_stock"
+        :data="stock.filter_stock"
         stripe
         style="width: 100%"
       >
@@ -43,21 +43,33 @@
   </el-popover>
 </template>
 <script>
-import { reactive, ref } from "vue";
+import { reactive, ref, watch } from "vue";
 export default {
   setup(props, context) {
     let stock = reactive({
       my_stock: [],
+      filter_stock: []
     });
     if (localStorage.getItem("my_stock")) {
       stock.my_stock = JSON.parse(localStorage.getItem("my_stock"));
+      stock.filter_stock = JSON.parse(localStorage.getItem("my_stock"));
     }
 
     let keyword = ref("");
+    watch(keyword, (val) => {
+      if (val) {
+        stock.filter_stock = stock.my_stock.filter((item) => {
+          return item.code.includes(val) || item.name.includes(val)
+        })
+      } else {
+        stock.filter_stock = stock.my_stock
+      }
+    })
 
     const updateFavour = () => {
       if (localStorage.getItem("my_stock")) {
         stock.my_stock = JSON.parse(localStorage.getItem("my_stock"));
+        stock.filter_stock = JSON.parse(localStorage.getItem("my_stock"));
       }
     };
 

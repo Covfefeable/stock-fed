@@ -29,6 +29,7 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :shortcuts="shortcuts"
+            :disabled-date="disabledDate"
             value-format="YYYY-MM-DD"
           >
           </el-date-picker>
@@ -36,17 +37,10 @@
         <el-form-item label="k线类型">
           <el-radio-group v-model="stockData.frequency">
             <el-radio-button
-              v-for="(item, index) in [
-                '5分',
-                '15分',
-                '30分',
-                '60分',
-                '日k',
-                '周k',
-                '月k',
-              ]"
+              v-for="(item, index) in kOptions"
               :key="index"
-              :label="item"
+              :label="item.label"
+              :disabled="item.disabled"
             ></el-radio-button>
           </el-radio-group>
         </el-form-item>
@@ -58,7 +52,7 @@
     </el-card>
 
     <el-card class="box-card">
-      <BasicInfo :code="stockData.stock_code" ref="basic" />
+      <BasicInfo :code="stockData.stock_code" @disable-minute="disableMinute" ref="basic" />
     </el-card>
 
     <el-card class="box-card">
@@ -92,7 +86,7 @@ import axios from "axios";
 import { ElMessage } from "element-plus";
 import Echart from "@/components/Echart";
 import BasicInfo from "@/components/BasicInfo.vue";
-import Favour from "@/components/Favour.vue"
+import Favour from "@/components/Favour.vue";
 import api from "@/utils/api.js";
 import config from "@/utils/config.js";
 import chart from "@/utils/chart.js";
@@ -102,7 +96,7 @@ export default {
   components: {
     Echart,
     BasicInfo,
-    Favour
+    Favour,
   },
   setup() {
     let option = reactive({
@@ -115,6 +109,17 @@ export default {
     let splitDate = [];
     let echartsTotal = [];
     const shortcuts = config.shortcuts;
+    let kOptions = reactive(JSON.parse(JSON.stringify(config.kOptions)));
+    const disableMinute = (disable) => {
+      kOptions.map(item => {
+        if (item.label.includes('分')) {
+          item.disabled = disable
+        }
+      })
+    }
+    const disabledDate = (time) => {
+      return time.getTime() > Date.now() - 3600 * 1000 * 24;
+    };
 
     const style = {
       boxStyle: {
@@ -143,18 +148,20 @@ export default {
     onMounted(() => {
       onSubmit();
     });
-    const basic = ref()
+    const basic = ref();
     const updateFavour = () => {
-      basic.value.isAdded()
-    }
+      basic.value.isAdded();
+    };
 
     const selectFavour = (data) => {
-      stockData.options = [{
-        code: data.code,
-        code_name: data.name
-      }]
-      stockData.stock_code = data.code
-    }
+      stockData.options = [
+        {
+          code: data.code,
+          code_name: data.name,
+        },
+      ];
+      stockData.stock_code = data.code;
+    };
 
     const addInstanse = (e) => {
       echartsTotal.push(e);
@@ -327,11 +334,14 @@ export default {
       style,
       stockData,
       shortcuts,
+      kOptions,
+      disableMinute,
       onSubmit,
       addInstanse,
       fetchStock,
       updateFavour,
-      selectFavour
+      selectFavour,
+      disabledDate,
     };
   },
 };

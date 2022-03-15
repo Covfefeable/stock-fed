@@ -31,7 +31,7 @@ export default {
   props: {
     code: String,
   },
-  setup(props) {
+  setup(props, context) {
     watch(
       () => props.code,
       () => {
@@ -123,6 +123,7 @@ export default {
           stockBasicInfo.outDate = res.data[0].outDate;
           stockBasicInfo.type = res.data[0].type;
           stockBasicInfo.status = res.data[0].status;
+          context.emit('disable-minute', stockBasicInfo.type === '2' ? true : false)
           isAdded()
         })
         .catch((err) => {
