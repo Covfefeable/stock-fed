@@ -37,13 +37,18 @@
         </el-form-item>
         <el-form-item label="数据源">
           <el-checkbox-group v-model="taskTrainInfo.dataSource">
-            <el-checkbox-button label="k" name="type" disabled
-              >k线数据</el-checkbox-button
-            >
             <el-checkbox-button label="macd" name="type"
               >MACD</el-checkbox-button
             >
+            <el-checkbox-button label="kdj" name="type" disabled
+              >KDJ</el-checkbox-button
+            >
           </el-checkbox-group>
+        </el-form-item>
+        <el-form-item label="关联目标">
+          <el-radio-group v-model="taskTrainInfo.relatedTarget">
+            <el-radio border label="pct">涨跌幅</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="日期选择">
           <el-date-picker
@@ -85,7 +90,7 @@
             />
           </el-select>
           <el-input
-            style="width: 170px; margin-left: 10px;"
+            style="width: 170px; margin-left: 10px"
             v-model="taskTrainInfo.learningRate"
             placeholder="输入学习步长"
           >
@@ -105,13 +110,13 @@
 <script>
 import { reactive, ref, watch } from "vue";
 import config from "@/utils/config.js";
+import train from "@/utils/train.js"
 export default {
   props: {
     info: Object,
   },
   setup(props, context) {
     watch(props.info, (val) => {
-      console.log(val);
       taskTrainInfo.stockOptions = [
         {
           label: val.name,
@@ -125,10 +130,12 @@ export default {
       name: "",
       type: "singleStock",
       targetStock: "",
+      date: ['2022-01-01', '2022-03-16'],
       loss: "meanSquaredError",
       optimizer: "adam",
       learningRate: 0.01,
       dataSource: ["macd"],
+      relatedTarget: 'pct',
       stockOptions: [
         {
           label: props.info.name,
@@ -137,6 +144,11 @@ export default {
       ],
       lossOptions: config.lossOptions,
       optimizerOptions: config.optimizerOptions,
+    });
+    watch(taskTrainInfo, (val) => {
+      if (val.dataSource.length === 0) {
+        val.dataSource = ["macd"];
+      }
     });
     const shortcuts = config.shortcuts;
     const disabledDate = (time) => {
@@ -153,6 +165,7 @@ export default {
 
     const confirm = () => {
       taskDialog.value = false;
+      train.startTrain(taskTrainInfo)
     };
 
     const open = () => {

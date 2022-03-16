@@ -52,7 +52,12 @@
     </el-card>
 
     <el-card class="box-card">
-      <BasicInfo :code="stockData.stock_code" @disableMinute="disableMinute" @disabledDate="updateDisabledDate" ref="basic" />
+      <BasicInfo
+        :code="stockData.stock_code"
+        @disableMinute="disableMinute"
+        @disabledDate="updateDisabledDate"
+        ref="basic"
+      />
     </el-card>
 
     <el-card class="box-card">
@@ -82,14 +87,12 @@
 <script>
 import { reactive, ref, onMounted, nextTick } from "vue";
 import * as echarts from "echarts";
-import axios from "axios";
-import { ElMessage } from "element-plus";
 import Echart from "@/components/Echart";
 import BasicInfo from "@/components/BasicInfo.vue";
 import Favour from "@/components/Favour.vue";
-import api from "@/utils/api.js";
 import config from "@/utils/config.js";
 import chart from "@/utils/chart.js";
+import request from "@/utils/request.js";
 
 export default {
   name: "Home",
@@ -112,18 +115,22 @@ export default {
     const shortcuts = config.shortcuts;
     let kOptions = reactive(JSON.parse(JSON.stringify(config.kOptions)));
     const disableMinute = (disable) => {
-      kOptions.map(item => {
-        if (item.label.includes('分')) {
-          item.disabled = disable
+      kOptions.map((item) => {
+        if (item.label.includes("分")) {
+          item.disabled = disable;
         }
-      })
-    }
+      });
+    };
     const disabledDate = (time) => {
-      return time.getTime() > Date.now() - (new Date().getHours() > 17 ? 0 : 3600 * 1000 * 24) || time.getTime() < new Date(ipoDate.value).getTime();
+      return (
+        time.getTime() >
+          Date.now() - (new Date().getHours() > 17 ? 0 : 3600 * 1000 * 24) ||
+        time.getTime() < new Date(ipoDate.value).getTime()
+      );
     };
     const updateDisabledDate = (ipo) => {
-      ipoDate.value = ipo
-    }
+      ipoDate.value = ipo;
+    };
 
     const style = {
       boxStyle: {
@@ -139,7 +146,7 @@ export default {
     const stockData = reactive({
       input: "",
       stock_code: "sh.000001",
-      date: ["2022-01-01", "2022-03-10"],
+      date: ["2022-01-01", "2022-03-16"],
       frequency: "日k",
       options: [
         {
@@ -197,29 +204,14 @@ export default {
     };
     const fetchStock = (e) => {
       if (!e) return;
-      axios
-        .get(api.search, {
-          params: {
-            stock_name: e,
-          },
+      request
+        .searchStock({
+          stock_name: e,
         })
         .then((res) => {
-          if (res.data.code === "500") {
-            ElMessage({
-              message: res.data.msg,
-              type: "warning",
-            });
-            return;
-          }
           stockData.options = res.data.filter((item) => {
             // 排除场外的
             return item.code.indexOf("of.") === -1;
-          });
-        })
-        .catch((err) => {
-          ElMessage({
-            message: err,
-            type: "error",
           });
         });
     };
@@ -240,61 +232,25 @@ export default {
         end_date: stockData.date[1],
         frequency: dict[stockData.frequency],
       };
-      axios
-        .get(api.overview, {
-          params: data,
-        })
-        .then((res) => {
-          if (res.data.code === "500") {
-            ElMessage({
-              message: res.data.msg,
-              type: "warning",
-            });
-            return;
-          }
-
-          let data = res.data.data;
-          renderMainChart(
-            JSON.parse(JSON.stringify(data)),
-            stockData.stock_code
-          );
-          const params = {
-            stock_code: stockData.stock_code,
-            start_date: stockData.date[0],
-            end_date: stockData.date[1],
-          };
-          axios
-            .get(api.calMACD, {
-              params: params,
-            })
-            .then((res) => {
-              if (res.data.code === "500") {
-                ElMessage({
-                  message: res.data.msg,
-                  type: "warning",
-                });
-                return;
-              }
-              renderMACDChart(JSON.parse(JSON.stringify(res.data.data)));
-            })
-            .catch((err) => {
-              ElMessage({
-                message: err,
-                type: "error",
-              });
-            })
-            .finally(() => {
-              loading.value = false;
-              // 改变loading后宽度异常，手动resize
-              resizeChart();
-            });
-        })
-        .catch((err) => {
-          ElMessage({
-            message: err,
-            type: "error",
+      request.getKData(data).then((res) => {
+        let data = res.data.data;
+        renderMainChart(JSON.parse(JSON.stringify(data)), stockData.stock_code);
+        const params = {
+          stock_code: stockData.stock_code,
+          start_date: stockData.date[0],
+          end_date: stockData.date[1],
+        };
+        request
+          .calMACD(params)
+          .then((res) => {
+            renderMACDChart(JSON.parse(JSON.stringify(res.data.data)));
+          })
+          .finally(() => {
+            loading.value = false;
+            // 改变loading后宽度异常，手动resize
+            resizeChart();
           });
-        });
+      });
     };
     const renderMainChart = (data, name) => {
       let processed = chart.stockOptions.splitData(data);

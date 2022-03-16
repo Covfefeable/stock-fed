@@ -22,17 +22,16 @@
       stockStatus[stockBasicInfo.status]
     }}</el-descriptions-item>
   </el-descriptions>
-  <trainTask :info="stockBasicInfo" ref="train"/>
+  <trainTask :info="stockBasicInfo" ref="train" />
 </template>
 <script>
 import { ref, onMounted, reactive, watch } from "vue";
-import axios from "axios";
-import api from "@/utils/api.js";
-import TrainTask from "@/components/TrainTask.vue"
+import request from "@/utils/request.js";
+import TrainTask from "@/components/TrainTask.vue";
 export default {
-  emits: ['disabledDate', 'disableMinute'],
+  emits: ["disabledDate", "disableMinute"],
   components: {
-    TrainTask
+    TrainTask,
   },
   props: {
     code: String,
@@ -47,9 +46,9 @@ export default {
     onMounted(() => {
       getStockInfo();
     });
-    const loading = ref(false)
-    const train = ref()
-    const added = ref(false)
+    const loading = ref(false);
+    const train = ref();
+    const added = ref(false);
     const stockType = {
       1: "股票",
       2: "指数",
@@ -71,12 +70,12 @@ export default {
     });
 
     const addTrainTask = () => {
-      train.value.open()
-    }
+      train.value.open();
+    };
     const isAdded = () => {
       if (!localStorage.getItem("my_stock")) {
-        added.value = false
-        return
+        added.value = false;
+        return;
       }
       let my_stock = JSON.parse(localStorage.getItem("my_stock"));
       let exist = false;
@@ -85,7 +84,7 @@ export default {
           exist = true;
         }
       });
-     added.value = exist;
+      added.value = exist;
     };
 
     const favourate = () => {
@@ -109,46 +108,45 @@ export default {
         });
       }
       localStorage.setItem("my_stock", JSON.stringify(my_stock));
-      isAdded()
+      isAdded();
     };
 
     const getStockInfo = () => {
       if (!props.code) return;
-      loading.value = true
-      axios
-        .get(api.basic, {
-          params: {
-            stock_code: props.code,
-          },
+      loading.value = true;
+      request
+        .getStockInfo({
+          stock_code: props.code,
         })
         .then((res) => {
-          if (res.data.code === "500") {
-            ElMessage({
-              message: res.data.msg,
-              type: "warning",
-            });
-            return;
-          }
           stockBasicInfo.name = res.data[0].code_name;
           stockBasicInfo.code = res.data[0].code;
           stockBasicInfo.ipoDate = res.data[0].ipoDate;
           stockBasicInfo.outDate = res.data[0].outDate;
           stockBasicInfo.type = res.data[0].type;
           stockBasicInfo.status = res.data[0].status;
-          context.emit('disableMinute', stockBasicInfo.type === '2' ? true : false)
-          isAdded()
-          context.emit('disabledDate', stockBasicInfo.ipoDate)
+          context.emit(
+            "disableMinute",
+            stockBasicInfo.type === "2" ? true : false
+          );
+          isAdded();
+          context.emit("disabledDate", stockBasicInfo.ipoDate);
         })
-        .catch((err) => {
-          ElMessage({
-            message: err,
-            type: "error",
-          });
-        }).finally(() => {
+        .finally(() => {
           loading.value = false;
         });
     };
-    return { stockBasicInfo, stockType, stockStatus, added, train, loading, favourate, isAdded, addTrainTask };
+    return {
+      stockBasicInfo,
+      stockType,
+      stockStatus,
+      added,
+      train,
+      loading,
+      favourate,
+      isAdded,
+      addTrainTask,
+    };
   },
 };
 </script>
