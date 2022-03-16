@@ -29,7 +29,7 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :shortcuts="shortcuts"
-            :disabled-date="disabledDate"
+            :disabledDate="disabledDate"
             value-format="YYYY-MM-DD"
           >
           </el-date-picker>
@@ -52,7 +52,7 @@
     </el-card>
 
     <el-card class="box-card">
-      <BasicInfo :code="stockData.stock_code" @disable-minute="disableMinute" ref="basic" />
+      <BasicInfo :code="stockData.stock_code" @disableMinute="disableMinute" @disabledDate="updateDisabledDate" ref="basic" />
     </el-card>
 
     <el-card class="box-card">
@@ -106,6 +106,7 @@ export default {
       option: {},
     });
     let loading = ref(false);
+    let ipoDate = ref(0);
     let splitDate = [];
     let echartsTotal = [];
     const shortcuts = config.shortcuts;
@@ -118,8 +119,11 @@ export default {
       })
     }
     const disabledDate = (time) => {
-      return time.getTime() > Date.now() - 3600 * 1000 * 24;
+      return time.getTime() > Date.now() - (new Date().getHours() > 17 ? 0 : 3600 * 1000 * 24) || time.getTime() < new Date(ipoDate.value).getTime();
     };
+    const updateDisabledDate = (ipo) => {
+      ipoDate.value = ipo
+    }
 
     const style = {
       boxStyle: {
@@ -336,6 +340,7 @@ export default {
       shortcuts,
       kOptions,
       disableMinute,
+      updateDisabledDate,
       onSubmit,
       addInstanse,
       fetchStock,

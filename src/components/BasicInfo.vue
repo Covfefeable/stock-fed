@@ -1,10 +1,10 @@
 <template>
-  <el-descriptions :title="stockBasicInfo.name">
+  <el-descriptions :title="stockBasicInfo.name" v-loading="loading">
     <template #extra>
       <el-button :type="added ? 'danger' : 'primary'" @click="favourate">{{
         added ? "删自选" : "加自选"
       }}</el-button>
-      <el-button type="primary" disabled>训练</el-button>
+      <el-button type="primary" @click="addTrainTask">训练</el-button>
     </template>
     <el-descriptions-item label="股票代码">{{
       stockBasicInfo.code
@@ -22,12 +22,18 @@
       stockStatus[stockBasicInfo.status]
     }}</el-descriptions-item>
   </el-descriptions>
+  <trainTask :info="stockBasicInfo" ref="train"/>
 </template>
 <script>
 import { ref, onMounted, reactive, watch } from "vue";
 import axios from "axios";
 import api from "@/utils/api.js";
+import TrainTask from "@/components/TrainTask.vue"
 export default {
+  emits: ['disabledDate', 'disableMinute'],
+  components: {
+    TrainTask
+  },
   props: {
     code: String,
   },
@@ -41,7 +47,9 @@ export default {
     onMounted(() => {
       getStockInfo();
     });
-
+    const loading = ref(false)
+    const train = ref()
+    const added = ref(false)
     const stockType = {
       1: "股票",
       2: "指数",
@@ -61,7 +69,10 @@ export default {
       type: "--",
       status: "--",
     });
-    const added = ref(false)
+
+    const addTrainTask = () => {
+      train.value.open()
+    }
     const isAdded = () => {
       if (!localStorage.getItem("my_stock")) {
         added.value = false
@@ -103,6 +114,7 @@ export default {
 
     const getStockInfo = () => {
       if (!props.code) return;
+      loading.value = true
       axios
         .get(api.basic, {
           params: {
@@ -123,17 +135,20 @@ export default {
           stockBasicInfo.outDate = res.data[0].outDate;
           stockBasicInfo.type = res.data[0].type;
           stockBasicInfo.status = res.data[0].status;
-          context.emit('disable-minute', stockBasicInfo.type === '2' ? true : false)
+          context.emit('disableMinute', stockBasicInfo.type === '2' ? true : false)
           isAdded()
+          context.emit('disabledDate', stockBasicInfo.ipoDate)
         })
         .catch((err) => {
           ElMessage({
             message: err,
             type: "error",
           });
+        }).finally(() => {
+          loading.value = false;
         });
     };
-    return { stockBasicInfo, stockType, stockStatus, added, favourate, isAdded };
+    return { stockBasicInfo, stockType, stockStatus, added, train, loading, favourate, isAdded, addTrainTask };
   },
 };
 </script>

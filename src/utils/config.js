@@ -1,3 +1,5 @@
+// 当天数据17点后才会更新
+let delay = new Date().getHours() > 17 ? 0 : 3600 * 1000 * 24 * 1;
 export default {
   // 当天暂时不支持选取
   shortcuts: [
@@ -6,8 +8,8 @@ export default {
       value: () => {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 8);
-        end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 7 - delay);
+        end.setTime(end.getTime() - delay);
         return [start, end];
       },
     },
@@ -16,8 +18,8 @@ export default {
       value: () => {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 31);
-        end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 30 - delay);
+        end.setTime(end.getTime() - delay);
         return [start, end];
       },
     },
@@ -26,8 +28,8 @@ export default {
       value: () => {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 91);
-        end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 90 - delay);
+        end.setTime(end.getTime() - delay);
         return [start, end];
       },
     },
@@ -36,8 +38,8 @@ export default {
       value: () => {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 366);
-        end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 365 - delay);
+        end.setTime(end.getTime() - delay);
         return [start, end];
       },
     },
@@ -46,8 +48,8 @@ export default {
       value: () => {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 1094);
-        end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 1093 - delay);
+        end.setTime(end.getTime() - delay);
         return [start, end];
       },
     },
@@ -56,8 +58,8 @@ export default {
       value: () => {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 1824);
-        end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 1823 - delay);
+        end.setTime(end.getTime() - delay);
         return [start, end];
       },
     },
@@ -66,8 +68,8 @@ export default {
       value: () => {
         const end = new Date();
         const start = new Date();
-        start.setTime(start.getTime() - 3600 * 1000 * 24 * 3649);
-        end.setTime(end.getTime() - 3600 * 1000 * 24 * 1);
+        start.setTime(start.getTime() - 3600 * 1000 * 24 * 3648 - delay);
+        end.setTime(end.getTime() - delay);
         return [start, end];
       },
     },
@@ -102,4 +104,15 @@ export default {
       disabled: false,
     },
   ],
+  lossOptions: [{
+    label: '均方误差',
+    value: 'meanSquaredError'
+  }],
+  optimizerOptions: [{
+    label: 'Adam 算法',
+    value: 'adam'
+  }, {
+    label: '随机梯度下降',
+    value: 'sgd'
+  }]
 };
