@@ -10,6 +10,14 @@ const routes = [
     component: () => import('../views/Home.vue')
   },
   {
+    path: '/model',
+    name: 'Model',
+    meta: {
+      alive: false
+    },
+    component: () => import('../views/Model.vue')
+  },
+  {
     path: '/about',
     name: 'About',
     meta: {

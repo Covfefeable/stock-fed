@@ -8,12 +8,13 @@
   >
     <div class="dialog-body">
       <el-form
-        ref="form"
+        ref="trainForm"
+        :rules="rules"
         :model="taskTrainInfo"
         label-width="auto"
         label-position="left"
       >
-        <el-form-item label="任务名称">
+        <el-form-item label="任务名称" prop="name">
           <el-input v-model="taskTrainInfo.name" />
         </el-form-item>
         <el-form-item label="训练类型">
@@ -22,7 +23,7 @@
             <el-radio border label="emotion" disabled>全市场</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="目标个股">
+        <el-form-item label="目标个股" prop="targetStock">
           <el-select
             v-model="taskTrainInfo.targetStock"
             placeholder="当前的目标个股"
@@ -35,7 +36,7 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="数据源">
+        <el-form-item label="数据源" prop="dataSource">
           <el-checkbox-group v-model="taskTrainInfo.dataSource">
             <el-checkbox-button label="macd" name="type"
               >MACD</el-checkbox-button
@@ -48,6 +49,7 @@
         <el-form-item label="关联目标">
           <el-radio-group v-model="taskTrainInfo.relatedTarget">
             <el-radio border label="pct">涨跌幅</el-radio>
+            <el-radio border label="amount" disabled>交易量</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="日期选择">
@@ -90,9 +92,11 @@
             />
           </el-select>
           <el-input
-            style="width: 170px; margin-left: 10px"
+            type="number"
+            :min="0.001"
+            style="width: 190px; margin-left: 10px"
             v-model="taskTrainInfo.learningRate"
-            placeholder="输入学习步长"
+            placeholder="学习步长"
           >
             <template #prepend>学习步长</template>
           </el-input>
@@ -102,7 +106,7 @@
     <template #footer>
       <span class="dialog-footer">
         <el-button @click="cancel">取消</el-button>
-        <el-button type="primary" @click="confirm">提交</el-button>
+        <el-button type="primary" @click="confirm(trainForm)">提交</el-button>
       </span>
     </template>
   </el-dialog>
@@ -110,7 +114,7 @@
 <script>
 import { reactive, ref, watch } from "vue";
 import config from "@/utils/config.js";
-import train from "@/utils/train.js"
+import { ElMessage } from "element-plus";
 export default {
   props: {
     info: Object,
@@ -124,18 +128,20 @@ export default {
         },
       ];
       taskTrainInfo.targetStock = val.code;
+      taskTrainInfo.name = '训练任务_' + val.name + '_' +  Number(new Date)
     });
     const taskDialog = ref(false);
+    const trainForm = ref();
     const taskTrainInfo = reactive({
       name: "",
       type: "singleStock",
       targetStock: "",
-      date: ['2022-01-01', '2022-03-16'],
+      date: ["2022-01-01", "2022-03-16"],
       loss: "meanSquaredError",
       optimizer: "adam",
       learningRate: 0.01,
       dataSource: ["macd"],
-      relatedTarget: 'pct',
+      relatedTarget: "pct",
       stockOptions: [
         {
           label: props.info.name,
@@ -145,11 +151,24 @@ export default {
       lossOptions: config.lossOptions,
       optimizerOptions: config.optimizerOptions,
     });
-    watch(taskTrainInfo, (val) => {
-      if (val.dataSource.length === 0) {
-        val.dataSource = ["macd"];
-      }
+    const rules = reactive({
+      name: [
+        {
+          required: true,
+          message: "请输入任务名称",
+          trigger: "blur",
+        },
+        { min: 1, max: 20, message: "名称长度在1-20之间", trigger: "blur" },
+      ],
+      dataSource: [
+        {
+          required: true,
+          message: "请至少选择一个数据源",
+          trigger: "change",
+        },
+      ],
     });
+
     const shortcuts = config.shortcuts;
     const disabledDate = (time) => {
       return (
@@ -163,9 +182,27 @@ export default {
       taskDialog.value = false;
     };
 
-    const confirm = () => {
-      taskDialog.value = false;
-      train.startTrain(taskTrainInfo)
+    const confirm = (trainForm) => {
+      trainForm.validate((valid, fields) => {
+        if (!valid) {
+          console.log("表单不正确", fields);
+          return;
+        } else {
+          let data = JSON.parse(JSON.stringify(taskTrainInfo));
+
+          let my_task = localStorage.getItem("my_task")
+            ? JSON.parse(localStorage.getItem("my_task"))
+            : [];
+
+          my_task.push(data);
+          localStorage.setItem("my_task", JSON.stringify(my_task));
+          ElMessage({
+            message: '创建成功，请到模型页面查看',
+            type: "success",
+          });
+          cancel();
+        }
+      });
     };
 
     const open = () => {
@@ -175,6 +212,8 @@ export default {
       taskDialog,
       taskTrainInfo,
       shortcuts,
+      rules,
+      trainForm,
       cancel,
       confirm,
       open,
