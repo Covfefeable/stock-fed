@@ -79,10 +79,10 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="优化器">
+        <el-form-item label="优化函数">
           <el-select
             v-model="taskTrainInfo.optimizer"
-            placeholder="选择合适的优化器"
+            placeholder="选择合适的优化优化函数"
           >
             <el-option
               v-for="(item, index) in taskTrainInfo.optimizerOptions"
@@ -133,6 +133,7 @@ export default {
     const taskDialog = ref(false);
     const trainForm = ref();
     const taskTrainInfo = reactive({
+      status: 0,
       name: "",
       type: "singleStock",
       targetStock: "",
@@ -158,7 +159,7 @@ export default {
           message: "请输入任务名称",
           trigger: "blur",
         },
-        { min: 1, max: 20, message: "名称长度在1-20之间", trigger: "blur" },
+        { min: 1, max: 50, message: "名称长度在1-50之间", trigger: "blur" },
       ],
       dataSource: [
         {
