@@ -46,10 +46,9 @@
             >
           </el-checkbox-group>
         </el-form-item>
-        <el-form-item label="关联目标">
+        <el-form-item label="关联项">
           <el-radio-group v-model="taskTrainInfo.relatedTarget">
             <el-radio border label="pct">涨跌幅</el-radio>
-            <el-radio border label="amount" disabled>交易量</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="日期选择">
@@ -101,6 +100,24 @@
             <template #prepend>学习步长</template>
           </el-input>
         </el-form-item>
+        <el-form-item label="Batch Size" prop="batchSize">
+          <el-input
+            type="number"
+            :min="1"
+            v-model="taskTrainInfo.batchSize"
+            placeholder="输入的 Batch Size"
+          >
+          </el-input>
+        </el-form-item>
+        <el-form-item label="epochs" prop="epochs">
+          <el-input
+            type="number"
+            :min="1"
+            v-model="taskTrainInfo.epochs"
+            placeholder="输入的 epochs"
+          >
+          </el-input>
+        </el-form-item>
       </el-form>
     </div>
     <template #footer>
@@ -115,6 +132,7 @@
 import { reactive, ref, watch } from "vue";
 import config from "@/utils/config.js";
 import { ElMessage } from "element-plus";
+const moment = require('moment');
 export default {
   props: {
     info: Object,
@@ -128,19 +146,25 @@ export default {
         },
       ];
       taskTrainInfo.targetStock = val.code;
-      taskTrainInfo.name = '训练任务_' + val.name + '_' +  Number(new Date)
+      taskTrainInfo.name = "训练任务_" + val.name + "_" + Number(new Date());
     });
     const taskDialog = ref(false);
     const trainForm = ref();
+    let curTime =
+      new Date().getHours() > 17
+        ? moment().format("YYYY-MM-DD")
+        : moment().subtract(1, "days").format("YYYY-MM-DD");
     const taskTrainInfo = reactive({
       status: 0,
       name: "",
       type: "singleStock",
       targetStock: "",
-      date: ["2022-01-01", "2022-03-16"],
+      date: ["2022-01-01", curTime],
       loss: "meanSquaredError",
       optimizer: "adam",
-      learningRate: 0.01,
+      learningRate: 0.1,
+      batchSize: 1,
+      epochs: 200,
       dataSource: ["macd"],
       relatedTarget: "pct",
       stockOptions: [
@@ -168,6 +192,20 @@ export default {
           trigger: "change",
         },
       ],
+      batchSize: [
+        {
+          required: true,
+          message: "请输入 batch size",
+          trigger: "blur",
+        },
+      ],
+      epochs: [
+        {
+          required: true,
+          message: "请输入 epochs",
+          trigger: "blur",
+        },
+      ],
     });
 
     const shortcuts = config.shortcuts;
@@ -190,7 +228,7 @@ export default {
           return;
         } else {
           let data = JSON.parse(JSON.stringify(taskTrainInfo));
-
+          data.createTime = Number(new Date());
           let my_task = localStorage.getItem("my_task")
             ? JSON.parse(localStorage.getItem("my_task"))
             : [];
@@ -198,7 +236,7 @@ export default {
           my_task.push(data);
           localStorage.setItem("my_task", JSON.stringify(my_task));
           ElMessage({
-            message: '创建成功，请到模型页面查看',
+            message: "创建成功，请到模型页面查看",
             type: "success",
           });
           cancel();

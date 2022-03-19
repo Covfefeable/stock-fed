@@ -6,8 +6,8 @@
           <span>本地任务</span>
         </div>
       </template>
-      <el-table :data="taskData" style="width: 100%">
-        <el-table-column label="任务名称" width="380">
+      <el-table :data="taskData">
+        <el-table-column label="任务名称">
           <template #default="scope">
             <el-tag style="margin-right: 5px">{{
               convertName("targetStock", scope.row)
@@ -24,12 +24,22 @@
             >
           </template>
         </el-table-column>
-        <el-table-column label="时间范围" width="210">
+        <el-table-column label="关联项" width="100">
+          <template #default="scope">
+            {{ scope.row.relatedTarget === "pct" ? "涨跌幅" : "--" }}
+          </template>
+        </el-table-column>
+        <el-table-column label="创建时间">
+          <template #default="scope">
+            {{ formatDate(scope.row.createTime, 'YYYY-MM-DD h:mm:ss') }}
+          </template>
+        </el-table-column>
+        <el-table-column label="时间范围" width="250">
           <template #default="scope">
             <span>{{ scope.row.date[0] + " - " + scope.row.date[1] }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="机器学习参数" width="200">
+        <el-table-column label="机器学习参数" width="300">
           <template #default="scope">
             <el-tag style="margin-right: 5px">{{
               convertName("optimizer", scope.row)
@@ -37,7 +47,7 @@
             <el-tag>{{ convertName("loss", scope.row) }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="300">
           <template #default="scope">
             <el-button type="text" @click="handleEdit(scope.$index, scope.row)"
               >编辑</el-button
@@ -45,7 +55,9 @@
             <el-button type="text" @click="handleStart(scope.$index, scope.row)"
               >开始任务</el-button
             >
-            <el-button type="text" @click="handleUpload(scope.$index, scope.row)"
+            <el-button
+              type="text"
+              @click="handleUpload(scope.$index, scope.row)"
               >上传模型</el-button
             >
             <el-button
@@ -62,7 +74,9 @@
 </template>
 
 <script>
+const moment = require('moment');
 import { reactive } from "vue";
+import train from "@/utils/train.js";
 export default {
   name: "Model",
 
@@ -76,8 +90,8 @@ export default {
     });
     const convertName = (fieldName, data) => {
       let name = " -- ";
-      let field = fieldName
-      if (field === 'targetStock') field = 'stock';
+      let field = fieldName;
+      if (field === "targetStock") field = "stock";
       data[field + "Options"].map((item) => {
         if (item.value === data[fieldName]) {
           name = item.label;
@@ -85,10 +99,14 @@ export default {
       });
       return name;
     };
+    const formatDate = (d, t) => {
+      return moment(d).format(t)
+    }
     const handleEdit = (index, row) => {
       console.log(index, row);
     };
     const handleStart = (index, row) => {
+      train.startTrain(row);
       console.log(index, row);
     };
     const handleUpload = (index, row) => {
@@ -98,7 +116,15 @@ export default {
       console.log(index, row);
     };
 
-    return { taskData, convertName, handleEdit, handleStart, handleUpload, handleDelete };
+    return {
+      taskData,
+      convertName,
+      handleEdit,
+      handleStart,
+      handleUpload,
+      handleDelete,
+      formatDate
+    };
   },
 };
 </script>

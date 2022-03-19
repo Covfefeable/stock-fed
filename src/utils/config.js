@@ -107,6 +107,30 @@ export default {
   lossOptions: [{
     label: '均方误差',
     value: 'meanSquaredError'
+  }, {
+    label: '绝对误差',
+    value: 'meanAbsoluteError'
+  }, {
+    label: '计算加权误差',
+    value: 'computeWeightedLoss'
+  }, {
+    label: '余弦距离误差',
+    value: 'cosineDistance'
+  }, {
+    label: 'hinge 误差',
+    value: 'hingeLoss'
+  }, {
+    label: 'huber 误差',
+    value: 'huberLoss'
+  }, {
+    label: 'log 误差',
+    value: 'logLoss'
+  }, {
+    label: 'sigmoid 交叉熵误差',
+    value: 'sigmoidCrossEntropy'
+  }, {
+    label: 'softmax 交叉熵误差',
+    value: 'softmaxCrossEntropy'
   }],
   optimizerOptions: [{
     label: 'Adam 算法',
@@ -114,5 +138,20 @@ export default {
   }, {
     label: '随机梯度下降',
     value: 'sgd'
+  }, {
+    label: 'momentum 算法',
+    value: 'momentum'
+  }, {
+    label: 'adagrad 算法',
+    value: 'adagrad'
+  }, {
+    label: 'adadelta 算法',
+    value: 'adadelta'
+  }, {
+    label: 'adamax 算法',
+    value: 'adamax'
+  }, {
+    label: 'rmsprop 算法',
+    value: 'rmsprop'
   }]
 };

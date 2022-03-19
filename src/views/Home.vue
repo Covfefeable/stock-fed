@@ -85,6 +85,7 @@
 </template>
 
 <script>
+const moment = require('moment');
 import { reactive, ref, onMounted, nextTick } from "vue";
 import * as echarts from "echarts";
 import Echart from "@/components/Echart";
@@ -143,10 +144,11 @@ export default {
       },
     };
 
+    let curTime = new Date().getHours() > 17 ? moment().format('YYYY-MM-DD') : moment().subtract(1, 'days').format('YYYY-MM-DD')
     const stockData = reactive({
       input: "",
       stock_code: "sh.000001",
-      date: ["2022-01-01", "2022-03-16"],
+      date: ["2022-01-01", curTime],
       frequency: "日k",
       options: [
         {
