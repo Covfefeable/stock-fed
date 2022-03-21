@@ -4,16 +4,15 @@ import { ElNotification } from 'element-plus'
 
 const train = (source, target, config) => {
     // console.log(source, target, config)
-
-    let [x, y] = [[], []];
+    let [x, y, consecutiveDays] = [[], [], Number(config.consecutiveDays)];
     source.map((item, index) => {
-        x.push(source.slice(index, index + config.consecutiveDays));
+        x.push(source.slice(index, index + consecutiveDays));
     });
     target.map((item, index) => {
-        y.push(target[index + config.consecutiveDays]);
+        y.push(target[index + consecutiveDays]);
     });
-    x = x.slice(0, x.length - config.consecutiveDays)
-    y = y.slice(0, y.length - config.consecutiveDays)
+    x = x.slice(0, x.length - consecutiveDays)
+    y = y.slice(0, y.length - consecutiveDays)
 
     const xs = tf.tensor3d(x, [
         x.length,
@@ -24,7 +23,7 @@ const train = (source, target, config) => {
     const model = tf.sequential();
 
     model.add(tf.layers.conv1d({
-        inputShape: [config.consecutiveDays, 3],
+        inputShape: [consecutiveDays, 3],
         filters: 60,
         kernelSize: 1,
         activation: 'relu'
@@ -44,12 +43,12 @@ const train = (source, target, config) => {
     );
 
     model.compile({
-        optimizer: tf.train[config.optimizer](config.learningRate),
+        optimizer: tf.train[config.optimizer](Number(config.learningRate)),
         loss: config.loss,
     });
 
     model.fit(xs, ys, {
-        batchSize: config.batchSize, epochs: config.epochs, callbacks: {
+        batchSize: Number(config.batchSize), epochs: Number(config.epochs), callbacks: {
             onEpochEnd: async (epoch, logs) => {
                 console.log(epoch + 1 + ':' + logs.loss);
             }
@@ -61,7 +60,7 @@ const train = (source, target, config) => {
             message: config.name + '已训练完成！',
             type: 'success',
           })
-        // model.predict(tf.tensor2d([0.0047, 0.01313, -0.0083], [1, 3])).print();
+        model.predict(tf.tensor3d([x[x.length - 1]], [1, consecutiveDays, 3])).print();
         //  打开浏览器控制台看输出
     });
 }

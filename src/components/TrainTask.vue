@@ -2,7 +2,7 @@
   <el-dialog
     v-model="taskDialog"
     title="创建训练任务"
-    width="30%"
+    width="40%"
     center
     draggable
   >
@@ -196,7 +196,7 @@ export default {
       loss: "meanSquaredError",
       optimizer: "adam",
       learningRate: 0.1,
-      batchSize: 1,
+      batchSize: 32,
       epochs: 200,
       dataSource: ["macd"],
       consecutiveDays: 5,
@@ -319,7 +319,8 @@ export default {
 </script>
 <style scoped>
 .dialog-body {
-  min-height: 600px;
+  max-height: 550px;
+  overflow: auto;
 }
 .dialog-footer button:first-child {
   margin-right: 10px;
