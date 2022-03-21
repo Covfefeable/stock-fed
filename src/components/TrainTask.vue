@@ -46,6 +46,21 @@
             >
           </el-checkbox-group>
         </el-form-item>
+        <el-form-item label="日连续" prop="consecutiveDays">
+          <el-tooltip
+            effect="dark"
+            content="例：5日连续会将五组连续日数据作为一组"
+            placement="top"
+          >
+            <el-input
+              type="number"
+              style="width: 212px"
+              :min="2"
+              v-model="taskTrainInfo.consecutiveDays"
+              placeholder="日连续"
+            />
+          </el-tooltip>
+        </el-form-item>
         <el-form-item label="关联项">
           <el-radio-group v-model="taskTrainInfo.relatedTarget">
             <el-radio border label="pct">涨跌幅</el-radio>
@@ -103,6 +118,7 @@
         <el-form-item label="Batch Size" prop="batchSize">
           <el-input
             type="number"
+            style="width: 212px"
             :min="1"
             v-model="taskTrainInfo.batchSize"
             placeholder="输入的 Batch Size"
@@ -112,11 +128,28 @@
         <el-form-item label="epochs" prop="epochs">
           <el-input
             type="number"
+            style="width: 212px"
             :min="1"
             v-model="taskTrainInfo.epochs"
             placeholder="输入的 epochs"
           >
           </el-input>
+        </el-form-item>
+        <el-divider content-position="left">模型</el-divider>
+        <el-form-item label="模型详情">
+          <div v-for="(item, index) in modelDetail" :key="index">
+            <div
+              v-if="
+                taskTrainInfo.dataSource.includes(item.dataSource) &&
+                taskTrainInfo.relatedTarget === item.relatedTarget
+              "
+            >
+              <div>{{ item.model }}</div>
+              <div v-for="(desc, index_2) in item.desc" :key="index_2">
+                {{ "第" + (index_2 + 1) + "层：" + desc }}
+              </div>
+            </div>
+          </div>
         </el-form-item>
       </el-form>
     </div>
@@ -132,7 +165,7 @@
 import { reactive, ref, watch } from "vue";
 import config from "@/utils/config.js";
 import { ElMessage } from "element-plus";
-const moment = require('moment');
+const moment = require("moment");
 export default {
   props: {
     info: Object,
@@ -166,6 +199,7 @@ export default {
       batchSize: 1,
       epochs: 200,
       dataSource: ["macd"],
+      consecutiveDays: 5,
       relatedTarget: "pct",
       stockOptions: [
         {
@@ -190,6 +224,13 @@ export default {
           required: true,
           message: "请至少选择一个数据源",
           trigger: "change",
+        },
+      ],
+      consecutiveDays: [
+        {
+          required: true,
+          message: "请输入日连续参数",
+          trigger: "blur",
         },
       ],
       batchSize: [
@@ -247,12 +288,27 @@ export default {
     const open = () => {
       taskDialog.value = true;
     };
+
+    const modelDetail = reactive([
+      {
+        dataSource: "macd",
+        relatedTarget: "pct",
+        model: "sequential 模型",
+        desc: [
+          "conv1d: ( filters: 60; kernelSize: 1; activation: relu )",
+          "lstm: ( units: 80; returnSequences: true )",
+          "lstm: ( units: 1 )",
+          "dense: ( units: 1 )",
+        ],
+      },
+    ]);
     return {
       taskDialog,
       taskTrainInfo,
       shortcuts,
       rules,
       trainForm,
+      modelDetail,
       cancel,
       confirm,
       open,

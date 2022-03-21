@@ -49,7 +49,7 @@
         </el-table-column>
         <el-table-column label="操作" width="300">
           <template #default="scope">
-            <el-button type="text" @click="handleEdit(scope.$index, scope.row)"
+            <el-button type="text" @click="handleEdit(scope.$index, scope.row)" disabled
               >编辑</el-button
             >
             <el-button type="text" @click="handleStart(scope.$index, scope.row)"
@@ -57,13 +57,13 @@
             >
             <el-button
               type="text"
-              @click="handleUpload(scope.$index, scope.row)"
+              @click="handleUpload(scope.$index, scope.row)" disabled
               >上传模型</el-button
             >
             <el-button
               style="color: red"
               type="text"
-              @click="handleDelete(scope.$index, scope.row)"
+              @click="handleDelete(scope.$index, scope.row)" disabled
               >删除</el-button
             >
           </template>
@@ -76,7 +76,7 @@
 <script>
 const moment = require('moment');
 import { reactive } from "vue";
-import train from "@/utils/train.js";
+import train from "@/utils/TrainAssets/train-macd-pct.js";
 export default {
   name: "Model",
 
