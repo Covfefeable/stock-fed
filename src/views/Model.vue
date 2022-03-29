@@ -76,7 +76,7 @@
 <script>
 const moment = require('moment');
 import { reactive } from "vue";
-import train from "@/utils/TrainAssets/train-macd-pct.js";
+import train_MACD_PCT from "@/utils/TrainAssets/train-macd-pct.js";
 export default {
   name: "Model",
 
@@ -106,7 +106,7 @@ export default {
       console.log(index, row);
     };
     const handleStart = (index, row) => {
-      train.startTrain(row);
+      train_MACD_PCT.startTrain(row);
       console.log(index, row);
     };
     const handleUpload = (index, row) => {

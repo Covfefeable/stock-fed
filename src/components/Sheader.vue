@@ -8,7 +8,7 @@
     active-text-color="#ffd04b"
     @select="handleSelect"
   >
-    <h3>量化交易辅助决策平台</h3>
+    <h3>stock-quantitative</h3>
     <el-menu-item index="Home">首页</el-menu-item>
     <el-menu-item index="Model">模型</el-menu-item>
     <el-menu-item index="Foresee" disabled>策略</el-menu-item>

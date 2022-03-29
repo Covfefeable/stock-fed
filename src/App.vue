@@ -1,24 +1,26 @@
 <template>
-  <Sheader></Sheader>
+  <Sheader />
+  <TrainModel />
   <router-view v-slot="{ Component }">
     <keep-alive>
-      <component :is="Component" v-if="$route.meta.alive"/>
+      <component :is="Component" v-if="$route.meta.alive" />
     </keep-alive>
-    <component :is="Component" v-if="!$route.meta.alive"/>
+    <component :is="Component" v-if="!$route.meta.alive" />
   </router-view>
-  <Sfooter></Sfooter>
+  <Sfooter />
 </template>
 
 <script>
 import Sheader from "@/components/Sheader";
 import Sfooter from "@/components/Sfooter";
+import TrainModel from "@/components/TrainModel.vue";
 export default {
   components: {
     Sheader,
     Sfooter,
+    TrainModel,
   },
-  setup() {
-  },
+  setup() {},
 };
 </script>
 <style lang="less">

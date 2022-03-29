@@ -1,9 +1,14 @@
 import request from "@/utils/request.js";
 import * as tf from '@tensorflow/tfjs';
 import { ElNotification } from 'element-plus'
+import {useTrainStore} from '@/store/main.js'
 
 const train = (source, target, config) => {
-    // console.log(source, target, config)
+    const trainStore = useTrainStore()
+    trainStore.loss = []
+    trainStore.epochs = 0
+    trainStore.currentEpochs = 0
+
     let [x, y, consecutiveDays] = [[], [], Number(config.consecutiveDays)];
     source.map((item, index) => {
         x.push(source.slice(index, index + consecutiveDays));
@@ -46,11 +51,12 @@ const train = (source, target, config) => {
         optimizer: tf.train[config.optimizer](Number(config.learningRate)),
         loss: config.loss,
     });
-
     model.fit(xs, ys, {
         batchSize: Number(config.batchSize), epochs: Number(config.epochs), callbacks: {
             onEpochEnd: async (epoch, logs) => {
-                console.log(epoch + 1 + ':' + logs.loss);
+                trainStore.loss.push(Number(logs.loss))
+                trainStore.epochs = Number(config.epochs)
+                trainStore.currentEpochs = epoch + 1
             }
         }
     }).then( async () => {

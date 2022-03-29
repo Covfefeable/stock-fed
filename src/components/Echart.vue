@@ -22,6 +22,7 @@ export default {
     context.emit('echart-instanse', echart_id)
     watch(props.option, (newVal) => {
       let myEcharts
+      if (!document.getElementById(echart_id)) return
       if (!echarts.getInstanceByDom(document.getElementById(echart_id))) {
         myEcharts = echarts.init(document.getElementById(echart_id))
       } else {
