@@ -105,6 +105,13 @@ const startTrain = async (config) => {
         })
         target.splice(0, 33)
     })
+
+    if (dataSource.length > target.length) {
+        dataSource.length = target.length
+    } else if (dataSource.length < target.length) {
+        target.length = dataSource.length
+    }
+
     train(dataSource, target, config)
 }
 
