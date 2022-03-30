@@ -31,7 +31,7 @@
         </el-table-column>
         <el-table-column label="创建时间">
           <template #default="scope">
-            {{ formatDate(scope.row.createTime, 'YYYY-MM-DD h:mm:ss') }}
+            {{ formatDate(scope.row.createTime, "YYYY-MM-DD h:mm:ss") }}
           </template>
         </el-table-column>
         <el-table-column label="时间范围" width="250">
@@ -49,21 +49,29 @@
         </el-table-column>
         <el-table-column label="操作" width="300">
           <template #default="scope">
-            <el-button type="text" @click="handleEdit(scope.$index, scope.row)" disabled
+            <el-button
+              type="text"
+              @click="handleEdit(scope.$index, scope.row)"
+              disabled
               >编辑</el-button
             >
-            <el-button type="text" @click="handleStart(scope.$index, scope.row)"
+            <el-button
+              type="text"
+              @click="handleStart(scope.$index, scope.row)"
+              :disabled="trainStore.isTraining"
               >开始任务</el-button
             >
             <el-button
               type="text"
-              @click="handleUpload(scope.$index, scope.row)" disabled
-              >上传模型</el-button
+              @click="handleUpload(scope.$index, scope.row)"
+              disabled
+              >上传参数</el-button
             >
             <el-button
               style="color: red"
               type="text"
-              @click="handleDelete(scope.$index, scope.row)" disabled
+              @click="handleDelete(scope.$index, scope.row)"
+              disabled
               >删除</el-button
             >
           </template>
@@ -74,13 +82,15 @@
 </template>
 
 <script>
-const moment = require('moment');
+const moment = require("moment");
 import { reactive } from "vue";
 import train_MACD_PCT from "@/utils/TrainAssets/train-macd-pct.js";
+import { useTrainStore } from "@/store/main.js";
 export default {
   name: "Model",
 
   setup() {
+    const trainStore = useTrainStore();
     const taskData = reactive([]);
     let my_task = localStorage.getItem("my_task")
       ? JSON.parse(localStorage.getItem("my_task"))
@@ -100,8 +110,8 @@ export default {
       return name;
     };
     const formatDate = (d, t) => {
-      return moment(d).format(t)
-    }
+      return moment(d).format(t);
+    };
     const handleEdit = (index, row) => {
       console.log(index, row);
     };
@@ -117,13 +127,14 @@ export default {
     };
 
     return {
+      trainStore,
       taskData,
       convertName,
       handleEdit,
       handleStart,
       handleUpload,
       handleDelete,
-      formatDate
+      formatDate,
     };
   },
 };

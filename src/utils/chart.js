@@ -329,16 +329,25 @@ export default {
   },
   lineChart: {
     option: {
+      grid: {
+        x: 40,
+        y: 40,
+        x2: 40,
+        y2: 40
+      },
       xAxis: {
         type: "category",
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        data: [],
       },
       yAxis: {
         type: "value",
       },
+      tooltip: {
+        trigger: 'axis'
+      },
       series: [
         {
-          data: [820, 932, 901, 934, 1290, 1330, 1320],
+          data: [],
           type: "line",
           smooth: true,
         },

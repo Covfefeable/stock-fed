@@ -8,6 +8,7 @@ const train = (source, target, config) => {
     trainStore.loss = []
     trainStore.epochs = 0
     trainStore.currentEpochs = 0
+    trainStore.isTraining = true
 
     let [x, y, consecutiveDays] = [[], [], Number(config.consecutiveDays)];
     source.map((item, index) => {
@@ -60,12 +61,13 @@ const train = (source, target, config) => {
             }
         }
     }).then( async () => {
-        const result = await model.save('localstorage://' + '【模型】 - ' + config.name)
+        const result = await model.save('localstorage://' + 'MODEL_' + config.name)
         ElNotification({
             title: '训练完成',
             message: config.name + '已训练完成！',
             type: 'success',
           })
+        trainStore.isTraining = false
         model.predict(tf.tensor3d([x[x.length - 1]], [1, consecutiveDays, 3])).print();
         //  打开浏览器控制台看输出
     });

@@ -7,7 +7,7 @@
     class="tiny-realtime"
     :style="{ left: modelCord[0] + 'px', top: modelCord[1] + 'px' }"
   >
-    {{ trainStore.getProcess ? trainStore.getProcess + "%" : "无任务" }}
+    {{ trainStore.getProcess && trainStore.isTraining ? trainStore.getProcess + "%" : "无任务" }}
   </div>
 
   <el-dialog
@@ -19,6 +19,7 @@
   >
     <div class="dialog-body">
       <Echarts :style="chartStyle" :option="chartOption" />
+      <el-divider />
     </div>
     <template #footer>
       <span class="dialog-footer">
@@ -30,7 +31,7 @@
   </el-dialog>
 </template>
 <script>
-import { onMounted, reactive, ref } from "vue-demi";
+import { nextTick, onMounted, reactive, ref } from "vue-demi";
 import { useTrainStore } from "@/store/main.js";
 import Echarts from "@/components/Echart.vue";
 import chartConfig from "@/utils/chart.js";
@@ -39,11 +40,12 @@ export default {
     Echarts,
   },
   setup() {
+    const trainStore = useTrainStore();
     const modelCord = reactive([110, 80]);
     const chartStyle = {
       chartStyle: {
         width: "550px",
-        height: "200px",
+        height: "150px",
       },
     };
     let chartOption = reactive({
@@ -57,13 +59,16 @@ export default {
     };
     const detail = () => {
       trainingModel.value = true;
-      setTimeout(() => {
+      nextTick(() => {
         let o = JSON.parse(JSON.stringify(chartConfig.lineChart.option));
+        o.series[0].data = trainStore.loss;
+        o.xAxis.data = Array.from(
+          { length: trainStore.epochs },
+          (v, i) => i
+        );
         chartOption.option = o;
-      }, 30);
+      });
     };
-
-    const trainStore = useTrainStore();
 
     return {
       drag,
