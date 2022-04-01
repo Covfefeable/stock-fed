@@ -1,16 +1,9 @@
 import request from "@/utils/request.js";
-import * as tf from "@tensorflow/tfjs";
 import { ElNotification } from "element-plus";
 import { useTrainStore } from "@/store/main.js";
 import Worker from "./train.worker";
 
 const train = (source, target, config) => {
-//   let worker = new Worker();
-//   worker.onmessage = function (e) {
-//     console.log("接收到:", e);
-//   };
-//   worker.postMessage("yeyeyeye");
-//   return;
   const trainStore = useTrainStore();
   trainStore.loss = [];
   trainStore.epochs = 0;
@@ -27,63 +20,21 @@ const train = (source, target, config) => {
   x = x.slice(0, x.length - consecutiveDays);
   y = y.slice(0, y.length - consecutiveDays);
 
-  const xs = tf.tensor3d(x, [x.length, x[0].length, x[0][0].length]);
-  const ys = tf.tensor2d(y, [y.length, 1]);
-  const model = tf.sequential();
-
-  model.add(
-    tf.layers.conv1d({
-      inputShape: [consecutiveDays, 3],
-      filters: 60,
-      kernelSize: 1,
-      activation: "relu",
-    })
-  );
-  model.add(
-    tf.layers.lstm({
-      units: 80,
-      returnSequences: true,
-    })
-  );
-  model.add(tf.layers.lstm({ units: 1 }));
-
-  model.add(
-    tf.layers.dense({
-      units: 1,
-    })
-  );
-
-  model.compile({
-    optimizer: tf.train[config.optimizer](Number(config.learningRate)),
-    loss: config.loss,
-  });
-  model
-    .fit(xs, ys, {
-      batchSize: Number(config.batchSize),
-      epochs: Number(config.epochs),
-      callbacks: {
-        onEpochEnd: async (epoch, logs) => {
-          trainStore.loss.push(Number(logs.loss));
-          trainStore.epochs = Number(config.epochs);
-          trainStore.currentEpochs = epoch + 1;
-        },
-      },
-    })
-    .then(async () => {
-      const result = await model.save(
-        "localstorage://" + "MODEL_" + config.name
-      );
-      ElNotification({
-        title: "训练完成",
-        message: config.name + "已训练完成！",
-        type: "success",
-      });
-      trainStore.isTraining = false;
-      model
-        .predict(tf.tensor3d([x[x.length - 1]], [1, consecutiveDays, 3]))
-        .print();
-      //  打开浏览器控制台看输出
-    });
+  const data = {x, y, config}
+  data.action = 'train'
+  let worker = new Worker();
+  worker.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    if (data.action === 'updateStore') {
+      trainStore.loss.push(data.loss)
+      trainStore.epochs = data.epochs
+      trainStore.currentEpochs = data.currentEpochs
+    } else if (data.action === 'updateProgress') {
+      trainStore.isTraining = data.isTraining
+      worker.terminate()
+    }
+  };
+  worker.postMessage(JSON.stringify(data));
 };
 
 const startTrain = async (config) => {
