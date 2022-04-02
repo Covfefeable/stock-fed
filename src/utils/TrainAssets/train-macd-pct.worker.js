@@ -3,14 +3,14 @@
 // importScripts('https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.15.0')
 const tf = require("./tfjs.min.js");
 let globalModel = null;
-function trainModel(x, y, config) {
+function trainModel(_x, _y, config) {
   const consecutiveDays = Number(config.consecutiveDays);
   const testNum = Number(config.testNum);
-  let x_test = x.slice(x.length - testNum);
-  let y_test = y.slice(y.length - testNum);
+  let x_test = _x.slice(_x.length - testNum);
+  let y_test = _y.slice(_y.length - testNum);
 
-  x = x.slice(0, x.length - testNum);
-  y = y.slice(0, y.length - testNum);
+  let x = _x.slice(0, _x.length - testNum);
+  let y = _y.slice(0, _y.length - testNum);
   const xs = tf.tensor3d(x, [x.length, x[0].length, x[0][0].length]);
   const ys = tf.tensor2d(y, [y.length, 1]);
   const model = tf.sequential();
@@ -33,8 +33,12 @@ function trainModel(x, y, config) {
 
   model.add(tf.layers.dense({
     inputShape: [consecutiveDays, 3],
-    activation: "relu",
+    activation: "sigmoid",
     units: 10
+  }))
+
+  model.add(tf.layers.dense({
+    units: 5
   }))
 
   model.add(tf.layers.flatten())
@@ -83,19 +87,48 @@ function predictProfit(x, y, consecutiveDays) {
   let aggressiveTotal = 10000
   let record = []
   let aggressiveRecord = []
+  let profitConclude = {
+    up: 0,
+    down: 0,
+    upAim: 0,
+    downAim: 0,
+    upAimRate: 0,
+    downAimRate: 0,
+  }
+
   x.map((item, index) => {
     const value = globalModel.predict(tf.tensor3d([item], [1, consecutiveDays, 3])).dataSync()[0];
     const actual = y[index]
+
+    // 统计上涨下跌命中率
+    if (actual > 0) {
+      profitConclude.up += 1
+      if (value > 0) {
+        profitConclude.upAim += 1
+      }
+    } else {
+      profitConclude.down += 1
+      if (value <= 0) {
+        profitConclude.downAim += 1
+      }
+    }
+
     if (value > 0) {
       total = total * (1 + actual / 100)
     }
+
+    aggressiveTotal = aggressiveTotal * (1 + actual / 100)
     record.push(total)
-    aggressiveRecord.push(aggressiveTotal * (1 + actual / 100))
+    aggressiveRecord.push(aggressiveTotal)
   });
+
+  profitConclude.upAimRate = (profitConclude.upAim / profitConclude.up * 100).toFixed(2) + '%'
+  profitConclude.downAimRate = (profitConclude.downAim / profitConclude.down * 100).toFixed(2) + '%'
   let profit = {
     action: "updateProfit",
     profit: record,
-    aggressiveProfit: aggressiveRecord
+    aggressiveProfit: aggressiveRecord,
+    profitConclude: profitConclude
   };
   postMessage(JSON.stringify(profit));
 }

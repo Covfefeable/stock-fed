@@ -17,7 +17,7 @@
   <el-dialog
     v-model="trainingModel"
     title="进行中的任务"
-    width="600px"
+    width="650px"
     draggable
     center
   >
@@ -27,6 +27,46 @@
       <el-divider content-position="left">收益测算</el-divider>
       <Echarts :style="chartStyle" :option="profitOption" />
       <el-divider />
+      <el-descriptions
+        title="模型测算结果"
+        :column="3"
+        border
+      >
+        <el-descriptions-item>
+          <template #label> 上涨 </template>
+          {{ trainStore.profitConclude.up || 0 }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label> 命中上涨 </template>
+          {{ trainStore.profitConclude.upAim || 0 }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label> 上涨命中率 </template>
+          {{ trainStore.profitConclude.upAimRate || 0 }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label> 下跌 </template>
+          {{ trainStore.profitConclude.down || 0 }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label> 命中下跌 </template>
+          {{ trainStore.profitConclude.downAim || 0 }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label> 下跌命中率 </template>
+          {{ trainStore.profitConclude.downAimRate || 0 }}
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label> 综合命中率 </template>
+          {{
+            (
+              (trainStore.profitConclude.upAim +
+                trainStore.profitConclude.downAim) /
+              (trainStore.profitConclude.up + trainStore.profitConclude.down) * 100
+            ).toFixed(2) + "%" || 0
+          }}
+        </el-descriptions-item>
+      </el-descriptions>
     </div>
     <template #footer>
       <span class="dialog-footer">
@@ -49,17 +89,25 @@ export default {
   setup() {
     const trainStore = useTrainStore();
     const progressStyle = computed(() => {
-      const progress = trainStore.getProcess && trainStore.isTraining ? 100 - trainStore.getProcess : 100
+      const progress =
+        trainStore.getProcess && trainStore.isTraining
+          ? 100 - trainStore.getProcess
+          : 100;
       return {
         left: modelCord[0] + "px",
         top: modelCord[1] + "px",
-        background: "linear-gradient(#409eff " + progress + "%,#6076ff " + progress + "%)",
+        background:
+          "linear-gradient(#409eff " +
+          progress +
+          "%,#6076ff " +
+          progress +
+          "%)",
       };
     });
     const modelCord = reactive([110, 80]);
     const chartStyle = {
       chartStyle: {
-        width: "550px",
+        width: "600px",
         height: "150px",
       },
     };
@@ -85,14 +133,17 @@ export default {
 
         let p = JSON.parse(JSON.stringify(chartConfig.lineChart.option));
         p.series[0].data = trainStore.profit;
-        p.series[0].name = '测算收益';
+        p.series[0].name = "测算收益";
         p.series[1] = {
-          name: 'aggressive profit',
+          name: "aggressive profit",
           data: trainStore.aggressiveProfit,
           type: "line",
           smooth: true,
         };
-        p.xAxis.data = Array.from({ length: trainStore.profit.length }, (v, i) => i + 1);
+        p.xAxis.data = Array.from(
+          { length: trainStore.profit.length },
+          (v, i) => i + 1
+        );
         profitOption.option = p;
       });
     };
@@ -106,7 +157,7 @@ export default {
       trainStore,
       chartStyle,
       chartOption,
-      profitOption
+      profitOption,
     };
   },
 };

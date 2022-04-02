@@ -34,6 +34,7 @@ const train = (source, target, config) => {
     } else if (data.action === 'updateProfit') {
       trainStore.profit = data.profit
       trainStore.aggressiveProfit = data.aggressiveProfit
+      trainStore.profitConclude = data.profitConclude
       worker.terminate()
     }
   };
