@@ -5,9 +5,13 @@
     @click="detail"
     id="realtime"
     class="tiny-realtime"
-    :style="{ left: modelCord[0] + 'px', top: modelCord[1] + 'px' }"
+    :style="progressStyle"
   >
-    {{ trainStore.getProcess && trainStore.isTraining ? trainStore.getProcess + "%" : "无任务" }}
+    {{
+      trainStore.getProcess && trainStore.isTraining
+        ? trainStore.getProcess + "%"
+        : "无任务"
+    }}
   </div>
 
   <el-dialog
@@ -18,7 +22,10 @@
     center
   >
     <div class="dialog-body">
+      <el-divider content-position="left">损失值</el-divider>
       <Echarts :style="chartStyle" :option="chartOption" />
+      <el-divider content-position="left">收益测算</el-divider>
+      <Echarts :style="chartStyle" :option="profitOption" />
       <el-divider />
     </div>
     <template #footer>
@@ -31,7 +38,7 @@
   </el-dialog>
 </template>
 <script>
-import { nextTick, onMounted, reactive, ref } from "vue-demi";
+import { computed, nextTick, onMounted, reactive, ref } from "vue-demi";
 import { useTrainStore } from "@/store/main.js";
 import Echarts from "@/components/Echart.vue";
 import chartConfig from "@/utils/chart.js";
@@ -41,6 +48,14 @@ export default {
   },
   setup() {
     const trainStore = useTrainStore();
+    const progressStyle = computed(() => {
+      const progress = trainStore.getProcess && trainStore.isTraining ? 100 - trainStore.getProcess : 100
+      return {
+        left: modelCord[0] + "px",
+        top: modelCord[1] + "px",
+        background: "linear-gradient(#409eff " + progress + "%,#6076ff " + progress + "%)",
+      };
+    });
     const modelCord = reactive([110, 80]);
     const chartStyle = {
       chartStyle: {
@@ -49,6 +64,9 @@ export default {
       },
     };
     let chartOption = reactive({
+      option: {},
+    });
+    let profitOption = reactive({
       option: {},
     });
     const trainingModel = ref(false);
@@ -62,22 +80,33 @@ export default {
       nextTick(() => {
         let o = JSON.parse(JSON.stringify(chartConfig.lineChart.option));
         o.series[0].data = trainStore.loss;
-        o.xAxis.data = Array.from(
-          { length: trainStore.epochs },
-          (v, i) => i
-        );
+        o.xAxis.data = Array.from({ length: trainStore.epochs }, (v, i) => i);
         chartOption.option = o;
+
+        let p = JSON.parse(JSON.stringify(chartConfig.lineChart.option));
+        p.series[0].data = trainStore.profit;
+        p.series[0].name = '测算收益';
+        p.series[1] = {
+          name: 'aggressive profit',
+          data: trainStore.aggressiveProfit,
+          type: "line",
+          smooth: true,
+        };
+        p.xAxis.data = Array.from({ length: trainStore.profit.length }, (v, i) => i + 1);
+        profitOption.option = p;
       });
     };
 
     return {
       drag,
       detail,
+      progressStyle,
       modelCord,
       trainingModel,
       trainStore,
       chartStyle,
       chartOption,
+      profitOption
     };
   },
 };
@@ -92,7 +121,6 @@ export default {
   color: #fff;
   text-align: center;
   line-height: 50px;
-  background: #409eff;
   position: absolute;
   border-radius: 8px;
   box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.25);

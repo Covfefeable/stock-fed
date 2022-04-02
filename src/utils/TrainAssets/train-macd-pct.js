@@ -1,7 +1,7 @@
 import request from "@/utils/request.js";
 import { ElNotification } from "element-plus";
 import { useTrainStore } from "@/store/main.js";
-import Worker from "./train.worker";
+import Worker from "./train-macd-pct.worker";
 
 const train = (source, target, config) => {
   const trainStore = useTrainStore();
@@ -31,6 +31,9 @@ const train = (source, target, config) => {
       trainStore.currentEpochs = data.currentEpochs
     } else if (data.action === 'updateProgress') {
       trainStore.isTraining = data.isTraining
+    } else if (data.action === 'updateProfit') {
+      trainStore.profit = data.profit
+      trainStore.aggressiveProfit = data.aggressiveProfit
       worker.terminate()
     }
   };

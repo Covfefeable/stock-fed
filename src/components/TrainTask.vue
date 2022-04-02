@@ -121,7 +121,7 @@
             style="width: 212px"
             :min="1"
             v-model="taskTrainInfo.batchSize"
-            placeholder="输入的 Batch Size"
+            placeholder="输入 Batch Size"
           >
           </el-input>
         </el-form-item>
@@ -131,7 +131,17 @@
             style="width: 212px"
             :min="1"
             v-model="taskTrainInfo.epochs"
-            placeholder="输入的 epochs"
+            placeholder="输入 epochs"
+          >
+          </el-input>
+        </el-form-item>
+        <el-form-item label="测试集数量" prop="testNum">
+          <el-input
+            type="number"
+            style="width: 212px"
+            :min="1"
+            v-model="taskTrainInfo.testNum"
+            placeholder="输入 测试集数量"
           >
           </el-input>
         </el-form-item>
@@ -198,6 +208,7 @@ export default {
       learningRate: 0.1,
       batchSize: 32,
       epochs: 200,
+      testNum: 7,
       dataSource: ["macd"],
       consecutiveDays: 5,
       relatedTarget: "pct",
@@ -244,6 +255,13 @@ export default {
         {
           required: true,
           message: "请输入 epochs",
+          trigger: "blur",
+        },
+      ],
+      testNum: [
+        {
+          required: true,
+          message: "请输入 testNum",
           trigger: "blur",
         },
       ],

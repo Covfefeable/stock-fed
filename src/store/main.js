@@ -5,6 +5,8 @@ export const useTrainStore = defineStore({
   id: "train",
   state: () => ({
     loss: [],
+    profit: [],
+    aggressiveProfit: [],
     epochs: 0,
     currentEpochs: 0,
     isTraining: false,

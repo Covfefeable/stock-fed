@@ -7,7 +7,7 @@ module.exports = {
       .use("worker-loader")
       .loader("worker-loader")
       // inline: 'fallback' 可以支持旧版浏览器，但是实测有严重缓存问题
-      .options({inline: 'fallback'});
+      .options({ filename: "[name]:[hash:8].js", inline: "fallback" });
     // 解决 "window is undefined", 这是因为 worker 线程中不存在 window 对象, 要用 this 代替
     config.output.globalObject("this");
   },

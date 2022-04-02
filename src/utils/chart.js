@@ -330,10 +330,10 @@ export default {
   lineChart: {
     option: {
       grid: {
-        x: 40,
-        y: 40,
-        x2: 40,
-        y2: 40
+        x: 50,
+        y: 30,
+        x2: 50,
+        y2: 30
       },
       xAxis: {
         type: "category",
@@ -347,6 +347,7 @@ export default {
       },
       series: [
         {
+          name: '',
           data: [],
           type: "line",
           smooth: true,
