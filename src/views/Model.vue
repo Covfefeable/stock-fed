@@ -71,7 +71,6 @@
               style="color: red"
               type="text"
               @click="handleDelete(scope.$index, scope.row)"
-              disabled
               >删除</el-button
             >
           </template>
@@ -88,7 +87,6 @@ import train_MACD_PCT from "@/utils/TrainAssets/train-macd-pct.js";
 import { useTrainStore } from "@/store/main.js";
 export default {
   name: "Model",
-
   setup() {
     const trainStore = useTrainStore();
     const taskData = reactive([]);
@@ -123,7 +121,11 @@ export default {
       console.log(index, row);
     };
     const handleDelete = (index, row) => {
-      console.log(index, row);
+      const newData = taskData.filter((item, i) => {
+        return i !== index;
+      });
+      localStorage.setItem("my_task", JSON.stringify(newData));
+      taskData.splice(index, 1);
     };
 
     return {
