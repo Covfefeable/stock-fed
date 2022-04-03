@@ -28,6 +28,10 @@ export default {
       return result;
     },
     option: {
+      grid: {
+        y: 30,
+        y2: 30
+      },
       tooltip: {
         trigger: "axis",
         axisPointer: {
@@ -227,6 +231,10 @@ export default {
       };
     },
     option: {
+      grid: {
+        y: 30,
+        y2: 30
+      },
       tooltip: {
         trigger: "axis",
         axisPointer: {
@@ -260,7 +268,7 @@ export default {
           end: 100,
         },
         {
-          show: true,
+          show: false,
           type: "slider",
           top: "90%",
           start: 50,
@@ -328,6 +336,24 @@ export default {
     },
   },
   lineChart: {
+    splitKDJData: (rawData) => {
+      const categoryData = new Array(9).fill("-");
+      const k = new Array(9).fill(0);
+      const d = new Array(9).fill(0);
+      const j = new Array(9).fill(0);
+      for (var i = 0; i < rawData.length; i++) {
+        categoryData.push(String(i));
+        k.push(rawData[i][0]);
+        d.push(rawData[i][1]);
+        j.push(rawData[i][2]);
+      }
+      return {
+        categoryData: categoryData,
+        k: k,
+        d: d,
+        j: j,
+      };
+    },
     option: {
       grid: {
         x: 50,

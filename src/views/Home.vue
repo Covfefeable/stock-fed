@@ -70,13 +70,19 @@
       <Echart
         v-show="!loading"
         :option="option"
-        :style="style"
+        :style="style.mainStyle"
         @echart-instanse="addInstanse"
       ></Echart>
       <Echart
         v-show="!loading"
         :option="option_macd"
-        :style="style"
+        :style="style.macdStyle"
+        @echart-instanse="addInstanse"
+      ></Echart>
+      <Echart
+        v-show="!loading"
+        :option="option_kdj"
+        :style="style.kdjStyle"
         @echart-instanse="addInstanse"
       ></Echart>
     </el-card>
@@ -85,7 +91,7 @@
 </template>
 
 <script>
-const moment = require('moment');
+const moment = require("moment");
 import { reactive, ref, onMounted, nextTick } from "vue";
 import * as echarts from "echarts";
 import Echart from "@/components/Echart";
@@ -107,6 +113,9 @@ export default {
       option: {},
     });
     let option_macd = reactive({
+      option: {},
+    });
+    let option_kdj = reactive({
       option: {},
     });
     let loading = ref(false);
@@ -134,17 +143,30 @@ export default {
     };
 
     const style = {
-      boxStyle: {
-        width: "100%",
-        height: "500px",
+      mainStyle: {
+        chartStyle: {
+          width: "100%",
+          height: "400px",
+        },
       },
-      chartStyle: {
-        width: "100%",
-        height: "400px",
+      macdStyle: {
+        chartStyle: {
+          width: "100%",
+          height: "250px",
+        },
+      },
+      kdjStyle: {
+        chartStyle: {
+          width: "100%",
+          height: "300px",
+        },
       },
     };
 
-    let curTime = new Date().getHours() > 17 ? moment().format('YYYY-MM-DD') : moment().subtract(1, 'days').format('YYYY-MM-DD')
+    let curTime =
+      new Date().getHours() > 17
+        ? moment().format("YYYY-MM-DD")
+        : moment().subtract(1, "days").format("YYYY-MM-DD");
     const stockData = reactive({
       input: "",
       stock_code: "sh.000001",
@@ -249,6 +271,14 @@ export default {
           })
           .finally(() => {
             loading.value = false;
+          });
+        request
+          .calKDJ(params)
+          .then((res) => {
+            renderKDJChart(JSON.parse(JSON.stringify(res.data.data)));
+          })
+          .finally(() => {
+            loading.value = false;
             // 改变loading后宽度异常，手动resize
             resizeChart();
           });
@@ -282,6 +312,59 @@ export default {
       o.yAxis[1].max = max;
       o.yAxis[1].min = -max;
       option_macd.option = o;
+    };
+
+    const renderKDJChart = (data) => {
+      let processed = chart.lineChart.splitKDJData(data);
+      let o = JSON.parse(JSON.stringify(chart.lineChart.option));
+      o.xAxis.data =
+        stockData.frequency === "日k" ? splitDate : processed.categoryData;
+      o.grid = {
+        y: 30,
+        y2: 60,
+      };
+      o.dataZoom = [
+        {
+          type: "inside",
+          start: 50,
+          end: 100,
+        },
+        {
+          show: true,
+          type: "slider",
+          top: "90%",
+          start: 50,
+          end: 100,
+        },
+      ];
+      o.legend = {
+        data: ["K", "D", "J"],
+        orient: "vertical",
+        y: 50,
+        x: 50,
+        borderWidth: 1,
+        padding: 10,
+        itemGap: 15,
+      };
+      o.series[0] = {
+        name: "K",
+        data: processed.k,
+        type: "line",
+        smooth: true,
+      };
+      o.series[1] = {
+        name: "D",
+        data: processed.d,
+        type: "line",
+        smooth: true,
+      };
+      o.series[2] = {
+        name: "J",
+        data: processed.j,
+        type: "line",
+        smooth: true,
+      };
+      option_kdj.option = o;
       nextTick(() => {
         stockData.frequency === "日k"
           ? connectCharts()
@@ -293,6 +376,7 @@ export default {
       loading,
       option,
       option_macd,
+      option_kdj,
       style,
       stockData,
       shortcuts,

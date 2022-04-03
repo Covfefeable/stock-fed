@@ -7,6 +7,11 @@ export default {
             params: params
         })
     },
+    calKDJ: (params) => {
+        return ins.get(api.calKDJ, {
+            params: params
+        })
+    },
     getKData: (params) => {
         return ins.get(api.overview, {
             params: params

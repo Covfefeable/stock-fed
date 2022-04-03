@@ -1,7 +1,7 @@
 import request from "@/utils/request.js";
 import { ElNotification } from "element-plus";
 import { useTrainStore } from "@/store/main.js";
-import Worker from "./train-macd-pct.worker";
+import Worker from "./train-macd-pct-32.worker";
 
 const train = (source, target, config) => {
   const trainStore = useTrainStore();

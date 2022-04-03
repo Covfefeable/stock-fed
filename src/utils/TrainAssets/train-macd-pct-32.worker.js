@@ -83,8 +83,8 @@ function trainModel(_x, _y, config) {
 }
 
 function predictProfit(x, y, consecutiveDays) {
-  let total = 10000
-  let aggressiveTotal = 10000
+  let total = 100
+  let aggressiveTotal = 100
   let record = []
   let aggressiveRecord = []
   let profitConclude = {
