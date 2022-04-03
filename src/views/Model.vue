@@ -17,11 +17,7 @@
         </el-table-column>
         <el-table-column label="数据源" width="200">
           <template #default="scope">
-            <el-tag
-              v-for="(item, index) in scope.row.dataSource"
-              :key="index"
-              >{{ item }}</el-tag
-            >
+            <el-tag>{{ scope.row.dataSource }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column label="关联项" width="100">
@@ -84,6 +80,7 @@
 const moment = require("moment");
 import { reactive } from "vue";
 import train_MACD_PCT from "@/utils/TrainAssets/train-macd-pct.js";
+import train_KDJ_PCT from "@/utils/TrainAssets/train-kdj-pct.js";
 import { useTrainStore } from "@/store/main.js";
 export default {
   name: "Model",
@@ -114,7 +111,11 @@ export default {
       console.log(index, row);
     };
     const handleStart = (index, row) => {
-      train_MACD_PCT.startTrain(row);
+      if (row.dataSource === "macd" && row.relatedTarget === "pct") {
+        train_MACD_PCT.startTrain(row);
+      } else if (row.dataSource === "kdj" && row.relatedTarget === "pct") {
+        train_KDJ_PCT.startTrain(row);
+      }
       console.log(index, row);
     };
     const handleUpload = (index, row) => {

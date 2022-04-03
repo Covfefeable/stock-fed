@@ -1,7 +1,7 @@
 import request from "@/utils/request.js";
 import { ElNotification } from "element-plus";
 import { useTrainStore } from "@/store/main.js";
-import Worker from "./train-macd-pct-32.worker";
+import Worker from "./train-macd-pct.worker";
 
 const train = (source, target, config) => {
   const trainStore = useTrainStore();
@@ -9,6 +9,9 @@ const train = (source, target, config) => {
   trainStore.epochs = 0;
   trainStore.currentEpochs = 0;
   trainStore.isTraining = true;
+  trainStore.profit = []
+  trainStore.aggressiveProfit = []
+  trainStore.profitConclude = []
 
   let [x, y, consecutiveDays] = [[], [], Number(config.consecutiveDays)];
   source.map((item, index) => {
@@ -44,7 +47,7 @@ const train = (source, target, config) => {
 const startTrain = async (config) => {
   let dataSource = [];
   let target = [];
-  if (config.dataSource.includes("macd")) {
+  if (config.dataSource === "macd") {
     await request
       .calMACD({
         stock_code: config.targetStock,

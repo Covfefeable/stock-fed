@@ -37,14 +37,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="数据源" prop="dataSource">
-          <el-checkbox-group v-model="taskTrainInfo.dataSource">
-            <el-checkbox-button label="macd" name="type"
-              >MACD</el-checkbox-button
-            >
-            <el-checkbox-button label="kdj" name="type" disabled
-              >KDJ</el-checkbox-button
-            >
-          </el-checkbox-group>
+          <el-radio-group v-model="taskTrainInfo.dataSource">
+            <el-radio border label="macd">MACD</el-radio>
+            <el-radio border label="kdj">KDJ</el-radio>
+          </el-radio-group>
         </el-form-item>
         <el-form-item label="日连续" prop="consecutiveDays">
           <el-tooltip
@@ -150,7 +146,7 @@
           <div v-for="(item, index) in modelDetail" :key="index">
             <div
               v-if="
-                taskTrainInfo.dataSource.includes(item.dataSource) &&
+                taskTrainInfo.dataSource === item.dataSource &&
                 taskTrainInfo.relatedTarget === item.relatedTarget
               "
             >
@@ -209,7 +205,7 @@ export default {
       batchSize: 32,
       epochs: 200,
       testNum: 7,
-      dataSource: ["macd"],
+      dataSource: "macd",
       consecutiveDays: 5,
       relatedTarget: "pct",
       stockOptions: [
@@ -233,7 +229,7 @@ export default {
       dataSource: [
         {
           required: true,
-          message: "请至少选择一个数据源",
+          message: "请选择一个数据源",
           trigger: "change",
         },
       ],
@@ -310,6 +306,17 @@ export default {
     const modelDetail = reactive([
       {
         dataSource: "macd",
+        relatedTarget: "pct",
+        model: "sequential 模型",
+        desc: [
+          "conv1d: ( filters: 60; kernelSize: 1; activation: relu )",
+          "lstm: ( units: 80; returnSequences: true )",
+          "lstm: ( units: 1 )",
+          "dense: ( units: 1 )",
+        ],
+      },
+      {
+        dataSource: "kdj",
         relatedTarget: "pct",
         model: "sequential 模型",
         desc: [
