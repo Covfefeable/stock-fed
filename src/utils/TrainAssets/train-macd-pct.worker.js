@@ -38,7 +38,7 @@ function trainModel(_x, _y, config) {
   }))
 
   model.add(tf.layers.dense({
-    units: 5
+    units: 20
   }))
 
   model.add(tf.layers.flatten())

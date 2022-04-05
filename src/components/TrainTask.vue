@@ -193,20 +193,21 @@ export default {
       new Date().getHours() > 17
         ? moment().format("YYYY-MM-DD")
         : moment().subtract(1, "days").format("YYYY-MM-DD");
+    let startTime = moment().subtract(1095, "days").format("YYYY-MM-DD")
     const taskTrainInfo = reactive({
       status: 0,
       name: "",
       type: "singleStock",
       targetStock: "",
-      date: ["2022-01-01", curTime],
+      date: [startTime, curTime],
       loss: "meanSquaredError",
       optimizer: "adam",
       learningRate: 0.1,
       batchSize: 32,
       epochs: 200,
-      testNum: 7,
+      testNum: 90,
       dataSource: "macd",
-      consecutiveDays: 5,
+      consecutiveDays: 10,
       relatedTarget: "pct",
       stockOptions: [
         {

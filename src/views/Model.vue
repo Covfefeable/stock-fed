@@ -47,9 +47,8 @@
           <template #default="scope">
             <el-button
               type="text"
-              @click="handleEdit(scope.$index, scope.row)"
-              disabled
-              >编辑</el-button
+              @click="handlePredict(scope.$index, scope.row)"
+              >预测</el-button
             >
             <el-button
               type="text"
@@ -78,10 +77,12 @@
 
 <script>
 const moment = require("moment");
+import * as tf from "@tensorflow/tfjs";
 import { reactive } from "vue";
 import train_MACD_PCT from "@/utils/TrainAssets/train-macd-pct.js";
 import train_KDJ_PCT from "@/utils/TrainAssets/train-kdj-pct.js";
 import { useTrainStore } from "@/store/main.js";
+import trainUtil from "@/utils/train.utils"
 export default {
   name: "Model",
   setup() {
@@ -107,8 +108,9 @@ export default {
     const formatDate = (d, t) => {
       return moment(d).format(t);
     };
-    const handleEdit = (index, row) => {
-      console.log(index, row);
+    const handlePredict = async (index, row) => {
+      let model = await tf.loadLayersModel("indexeddb://" + "MODEL_" + row.name)
+      trainUtil.getTestData(row)
     };
     const handleStart = (index, row) => {
       if (row.dataSource === "macd" && row.relatedTarget === "pct") {
@@ -133,7 +135,7 @@ export default {
       trainStore,
       taskData,
       convertName,
-      handleEdit,
+      handlePredict,
       handleStart,
       handleUpload,
       handleDelete,

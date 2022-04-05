@@ -16,7 +16,7 @@
 
   <el-dialog
     v-model="trainingModel"
-    title="进行中的任务"
+    title="当前任务"
     width="650px"
     draggable
     center
@@ -104,7 +104,7 @@ export default {
           "%)",
       };
     });
-    const modelCord = reactive([110, 80]);
+    const modelCord = reactive([110, 140]);
     const chartStyle = {
       chartStyle: {
         width: "600px",

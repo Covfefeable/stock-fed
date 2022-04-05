@@ -266,16 +266,16 @@ export default {
         };
         request
           .calMACD(params)
-          .then((res) => {
-            renderMACDChart(JSON.parse(JSON.stringify(res.data.data)));
+          .then((res_1) => {
+            renderMACDChart(JSON.parse(JSON.stringify(res_1.data.data)));
           })
           .finally(() => {
             loading.value = false;
           });
         request
           .calKDJ(params)
-          .then((res) => {
-            renderKDJChart(JSON.parse(JSON.stringify(res.data.data)));
+          .then((res_2) => {
+            renderKDJChart(JSON.parse(JSON.stringify(res_2.data.data)));
           })
           .finally(() => {
             loading.value = false;
