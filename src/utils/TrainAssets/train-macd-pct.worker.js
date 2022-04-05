@@ -38,7 +38,8 @@ function trainModel(_x, _y, config) {
   }))
 
   model.add(tf.layers.dense({
-    units: 20
+    activation: "sigmoid",
+    units: 10
   }))
 
   model.add(tf.layers.flatten())
