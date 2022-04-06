@@ -17,7 +17,9 @@
         </el-table-column>
         <el-table-column label="数据源" width="200">
           <template #default="scope">
-            <el-tag>{{ scope.row.dataSource }}</el-tag>
+            <span v-for="(item, index) in scope.row.dataSource" :key="index">
+              <el-tag style="margin-right: 5px">{{ item }}</el-tag>
+            </span>
           </template>
         </el-table-column>
         <el-table-column label="关联项" width="100">
@@ -79,8 +81,7 @@
 const moment = require("moment");
 import * as tf from "@tensorflow/tfjs";
 import { reactive } from "vue";
-import train_MACD_PCT from "@/utils/TrainAssets/train-macd-pct.js";
-import train_KDJ_PCT from "@/utils/TrainAssets/train-kdj-pct.js";
+import train from "@/utils/TrainAssets/train.js";
 import { useTrainStore } from "@/store/main.js";
 import trainUtil from "@/utils/train.utils"
 export default {
@@ -113,11 +114,7 @@ export default {
       trainUtil.getTestData(row)
     };
     const handleStart = (index, row) => {
-      if (row.dataSource === "macd" && row.relatedTarget === "pct") {
-        train_MACD_PCT.startTrain(row);
-      } else if (row.dataSource === "kdj" && row.relatedTarget === "pct") {
-        train_KDJ_PCT.startTrain(row);
-      }
+      train.startTrain(row);
       console.log(index, row);
     };
     const handleUpload = (index, row) => {

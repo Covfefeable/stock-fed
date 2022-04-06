@@ -37,10 +37,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="数据源" prop="dataSource">
-          <el-radio-group v-model="taskTrainInfo.dataSource">
-            <el-radio border label="macd">MACD</el-radio>
-            <el-radio border label="kdj">KDJ</el-radio>
-          </el-radio-group>
+          <el-checkbox-group v-model="taskTrainInfo.dataSource">
+            <el-checkbox label="macd" border>macd</el-checkbox>
+            <el-checkbox label="kdj" border>kdj</el-checkbox>
+          </el-checkbox-group>
         </el-form-item>
         <el-form-item label="日连续" prop="consecutiveDays">
           <el-tooltip
@@ -146,7 +146,7 @@
           <div v-for="(item, index) in modelDetail" :key="index">
             <div
               v-if="
-                taskTrainInfo.dataSource === item.dataSource &&
+                taskTrainInfo.dataSource.includes(item.dataSource) &&
                 taskTrainInfo.relatedTarget === item.relatedTarget
               "
             >
@@ -193,7 +193,7 @@ export default {
       new Date().getHours() > 17
         ? moment().format("YYYY-MM-DD")
         : moment().subtract(1, "days").format("YYYY-MM-DD");
-    let startTime = moment().subtract(1095, "days").format("YYYY-MM-DD")
+    let startTime = moment().subtract(1095, "days").format("YYYY-MM-DD");
     const taskTrainInfo = reactive({
       status: 0,
       name: "",
@@ -206,7 +206,7 @@ export default {
       batchSize: 32,
       epochs: 200,
       testNum: 90,
-      dataSource: "macd",
+      dataSource: ["macd"],
       consecutiveDays: 10,
       relatedTarget: "pct",
       stockOptions: [

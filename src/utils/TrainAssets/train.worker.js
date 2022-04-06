@@ -32,14 +32,16 @@ function trainModel(_x, _y, config) {
   // model.add(tf.layers.lstm({ units: 1 }));
 
   model.add(tf.layers.dense({
-    inputShape: [consecutiveDays, 3],
-    activation: "sigmoid",
-    units: 10
+    inputShape: [consecutiveDays, x[0][0].length],
+    // activation: "sigmoid",
+    units: 40
   }))
 
   model.add(tf.layers.dense({
-    activation: "sigmoid",
-    units: 10
+    units: 180
+  }))
+  model.add(tf.layers.dense({
+    units: 100
   }))
 
   model.add(tf.layers.flatten())
@@ -98,7 +100,8 @@ function predictProfit(x, y, consecutiveDays) {
   }
 
   x.map((item, index) => {
-    const value = globalModel.predict(tf.tensor3d([item], [1, consecutiveDays, 3])).dataSync()[0];
+    const value = globalModel.predict(tf.tensor3d([item], [1, consecutiveDays, x[0][0].length])).dataSync()[0];
+    console.log(value)
     const actual = y[index]
 
     // 统计上涨下跌命中率
