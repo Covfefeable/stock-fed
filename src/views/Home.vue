@@ -15,8 +15,7 @@
               :key="item.code"
               :label="item.code_name"
               :value="item.code"
-            >
-            </el-option>
+            ></el-option>
           </el-select>
           <Favour @update-favour="updateFavour" @select-favour="selectFavour" />
         </el-form-item>
@@ -31,8 +30,7 @@
             :shortcuts="shortcuts"
             :disabledDate="disabledDate"
             value-format="YYYY-MM-DD"
-          >
-          </el-date-picker>
+          ></el-date-picker>
         </el-form-item>
         <el-form-item label="k线类型">
           <el-radio-group v-model="stockData.frequency">
@@ -134,7 +132,7 @@ export default {
     const disabledDate = (time) => {
       return (
         time.getTime() >
-          Date.now() - (new Date().getHours() > 17 ? 0 : 3600 * 1000 * 24) ||
+        Date.now() - (new Date().getHours() > 17 ? 0 : 3600 * 1000 * 24) ||
         time.getTime() < new Date(ipoDate.value).getTime()
       );
     };
@@ -268,20 +266,17 @@ export default {
           .calMACD(params)
           .then((res_1) => {
             renderMACDChart(JSON.parse(JSON.stringify(res_1.data.data)));
+            request
+              .calKDJ(params)
+              .then((res_2) => {
+                renderKDJChart(JSON.parse(JSON.stringify(res_2.data.data)));
+              })
+              .finally(() => {
+                loading.value = false;
+                // 改变loading后宽度异常，手动resize
+                resizeChart();
+              });
           })
-          .finally(() => {
-            loading.value = false;
-          });
-        request
-          .calKDJ(params)
-          .then((res_2) => {
-            renderKDJChart(JSON.parse(JSON.stringify(res_2.data.data)));
-          })
-          .finally(() => {
-            loading.value = false;
-            // 改变loading后宽度异常，手动resize
-            resizeChart();
-          });
       });
     };
     const renderMainChart = (data, name) => {
