@@ -17,10 +17,9 @@ function trainModel(_x, _y, config) {
 
   // model.add(
   //   tf.layers.conv1d({
-  //     inputShape: [consecutiveDays, 3],
-  //     filters: 60,
+  //     inputShape: [consecutiveDays, x[0][0].length],
+  //     filters: 6,
   //     kernelSize: 1,
-  //     activation: "relu",
   //   })
   // );
   // model.add(
@@ -33,15 +32,11 @@ function trainModel(_x, _y, config) {
 
   model.add(tf.layers.dense({
     inputShape: [consecutiveDays, x[0][0].length],
-    // activation: "sigmoid",
-    units: 40
+    units: 200
   }))
 
   model.add(tf.layers.dense({
     units: 180
-  }))
-  model.add(tf.layers.dense({
-    units: 100
   }))
 
   model.add(tf.layers.flatten())

@@ -2,6 +2,7 @@ import request from "@/utils/request.js";
 import { ElNotification } from "element-plus";
 import { useTrainStore } from "@/store/main.js";
 import Worker from "./train.worker";
+import { da } from "element-plus/es/locale";
 
 const train = (source, target, config) => {
   const trainStore = useTrainStore();
@@ -77,7 +78,8 @@ const startTrain = async (config) => {
           res.data.data.map((item) => {
             let newArr = [];
             item.map((sub) => {
-              newArr.push(Number(sub.toFixed(3)));
+              // 归一化
+              newArr.push(Number(sub.toFixed(3) / 100));
             });
             dataSource.push(newArr);
           });
@@ -118,7 +120,8 @@ const startTrain = async (config) => {
           data.map((item, index) => {
             let newArr = [];
             item.map((sub) => {
-              newArr.push(Number(sub.toFixed(3)));
+              // 归一化
+              newArr.push(Number(sub.toFixed(3) / 100));
             });
             dataSource[index] = dataSource[index] ? [...dataSource[index], ...newArr] : newArr;
           });
@@ -141,6 +144,15 @@ const startTrain = async (config) => {
       });
       target.splice(0, target.length - dataSource.length);
     });
+
+  // 长度对齐
+  if (dataSource.length > target.length) {
+    dataSource.splice(target.length, dataSource.length - target.length);
+  } else if (dataSource.length < target.length) {
+    target.splice(dataSource.length, target.length - dataSource.length);
+  }
+
+  console.log(dataSource, target);
 
   train(dataSource, target, config);
 };
