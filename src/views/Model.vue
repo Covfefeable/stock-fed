@@ -37,7 +37,7 @@
             <span>{{ scope.row.date[0] + " - " + scope.row.date[1] }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="机器学习参数" width="300">
+        <el-table-column label="深度学习参数" width="300">
           <template #default="scope">
             <el-tag style="margin-right: 5px">{{
               convertName("optimizer", scope.row)
