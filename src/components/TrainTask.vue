@@ -20,7 +20,7 @@
         <el-form-item label="训练类型">
           <el-radio-group v-model="taskTrainInfo.type">
             <el-radio border label="singleStock">个股</el-radio>
-            <el-radio border label="emotion" disabled>全市场</el-radio>
+            <el-radio border label="emotion" disabled>指数</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="目标个股" prop="targetStock">
@@ -57,7 +57,7 @@
             />
           </el-tooltip>
         </el-form-item>
-        <el-form-item label="关联项">
+        <el-form-item label="输出">
           <el-radio-group v-model="taskTrainInfo.relatedTarget">
             <el-radio border label="pct">涨跌幅</el-radio>
           </el-radio-group>
